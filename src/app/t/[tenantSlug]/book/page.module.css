@@ -1,0 +1,220 @@
+.wrap {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.steps {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+}
+
+.step {
+  flex: 1;
+  text-align: center;
+  padding: var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--ink-faint);
+  border-bottom: 3px solid var(--line);
+}
+
+.stepActive {
+  color: var(--tenant-primary, var(--brass-strong));
+  border-bottom-color: var(--tenant-primary, var(--brass));
+}
+
+.stepDone {
+  color: var(--ink-soft);
+  border-bottom-color: var(--line-strong);
+}
+
+.heading {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.subheading {
+  color: var(--ink-soft);
+  margin: 0 0 var(--space-4) 0;
+}
+
+.back {
+  background: none;
+  border: none;
+  color: var(--ink-faint);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: var(--space-4);
+}
+
+.categoryGroup {
+  margin-bottom: var(--space-6);
+}
+
+.categoryTitle {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  margin: 0 0 var(--space-3) 0;
+}
+
+.serviceGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--space-3);
+}
+
+.serviceCard {
+  text-align: left;
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius-ticket);
+  background: var(--paper-raised);
+  padding: var(--space-3);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.serviceCard:hover {
+  border-color: var(--tenant-primary, var(--brass));
+}
+
+.serviceImage {
+  width: 100%;
+  height: 90px;
+  object-fit: cover;
+  border-radius: var(--radius-control);
+  margin-bottom: var(--space-2);
+}
+
+.serviceName {
+  margin: 0;
+  font-weight: 700;
+}
+
+.serviceMeta {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+.barberGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-4);
+}
+
+.barberCard {
+  text-align: center;
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius-ticket);
+  background: var(--paper-raised);
+  padding: var(--space-4);
+  cursor: pointer;
+}
+.barberCard:hover {
+  border-color: var(--tenant-primary, var(--brass));
+}
+
+.barberAvatar,
+.barberAvatarPlaceholder {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto var(--space-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--tenant-primary-soft, var(--brass-soft));
+  color: var(--tenant-primary, var(--brass-strong));
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-xl);
+}
+
+.barberName {
+  margin: 0;
+  font-weight: 700;
+}
+
+.barberTags {
+  margin: var(--space-1) 0 0 0;
+  font-size: var(--text-xs);
+  color: var(--ink-faint);
+}
+
+.dateInput {
+  display: block;
+  margin-bottom: var(--space-4);
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius-control);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  background: var(--paper-raised);
+  color: var(--ink);
+}
+
+.slotGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+}
+
+.slotButton {
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius-control);
+  padding: var(--space-2);
+  background: var(--paper-raised);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  color: var(--ink);
+}
+.slotButton:hover {
+  border-color: var(--tenant-primary, var(--brass));
+}
+.slotButtonActive {
+  background: var(--tenant-primary, var(--brass));
+  border-color: var(--tenant-primary, var(--brass));
+  color: #fff;
+  font-weight: 700;
+}
+
+.confirmTicket {
+  max-width: 420px;
+  margin: var(--space-8) auto;
+  text-align: center;
+}
+
+.confirmEyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--moss);
+  font-weight: 700;
+  margin: 0 0 var(--space-2) 0;
+}
+
+.confirmHeading {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  margin: 0 0 var(--space-3) 0;
+}
+
+.confirmDetail {
+  font-size: var(--text-base);
+  margin: 0 0 var(--space-3) 0;
+}
+
+.confirmNote {
+  color: var(--ink-faint);
+  font-size: var(--text-sm);
+  margin: 0;
+}

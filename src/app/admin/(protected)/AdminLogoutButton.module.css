@@ -1,0 +1,11 @@
+/* Button's ghost variant is tuned for light paper backgrounds; this
+   instance sits on the header's dark --pine bar, so it needs light text
+   and a visible hover state here specifically. */
+.logout {
+  color: var(--paper);
+}
+
+.logout:hover:not(:disabled) {
+  background: var(--pine-raised);
+  color: var(--paper);
+}

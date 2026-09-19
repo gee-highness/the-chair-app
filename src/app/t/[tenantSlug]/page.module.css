@@ -1,0 +1,203 @@
+.heroTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.heroRating {
+  margin: var(--space-1) 0 0 0;
+  font-size: var(--text-sm);
+  opacity: 0.9;
+}
+
+.favoriteButton {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  color: #fff;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.favoriteButton:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.reviewGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-4);
+}
+
+.reviewCard {
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius-ticket);
+  background: var(--paper-raised);
+  padding: var(--space-4);
+}
+
+.reviewStars {
+  margin: 0 0 var(--space-2) 0;
+  color: var(--brass);
+  letter-spacing: 2px;
+}
+
+.reviewText {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--text-sm);
+}
+
+.hero {
+  background: var(--tenant-primary, var(--pine));
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+  padding: var(--space-8) var(--space-6);
+  border-radius: var(--radius-ticket);
+  margin-bottom: var(--space-7);
+}
+
+.heroTitle {
+  font-family: var(--tenant-font, var(--font-display));
+  font-size: var(--text-4xl);
+  margin: 0 0 var(--space-3) 0;
+}
+
+.heroDescription {
+  font-size: var(--text-lg);
+  max-width: 40ch;
+  margin: 0 0 var(--space-5) 0;
+  opacity: 0.95;
+}
+
+.section {
+  margin-bottom: var(--space-8);
+}
+
+.sectionTitle {
+  font-family: var(--tenant-font, var(--font-display));
+  font-size: var(--text-2xl);
+  margin: 0 0 var(--space-4) 0;
+}
+
+.barberGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-4);
+}
+
+.barberCard {
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius-ticket);
+  background: var(--paper-raised);
+  padding: var(--space-4);
+}
+.barberCard:hover {
+  border-color: var(--tenant-primary, var(--brass));
+}
+
+.barberAvatar,
+.barberAvatarPlaceholder {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto var(--space-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--tenant-primary-soft, var(--brass-soft));
+  color: var(--tenant-primary, var(--brass-strong));
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-xl);
+}
+
+.barberName {
+  margin: 0;
+  font-weight: 700;
+}
+
+.barberTags {
+  margin: var(--space-1) 0 0 0;
+  font-size: var(--text-xs);
+  color: var(--ink-faint);
+}
+
+.categoryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--space-4);
+}
+
+.categoryCard {
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius-ticket);
+  background: var(--paper-raised);
+  overflow: hidden;
+}
+
+.categoryImage {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+}
+
+.categoryName {
+  margin: var(--space-3) var(--space-3) 0;
+  font-weight: 700;
+}
+
+.categoryCount {
+  margin: var(--space-1) var(--space-3) var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--ink-faint);
+}
+
+.locationRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
+  align-items: center;
+}
+
+.address {
+  margin: 0 0 var(--space-2) 0;
+  font-weight: 600;
+}
+
+.contactLine {
+  margin: 0 0 var(--space-3) 0;
+  color: var(--ink-soft);
+}
+
+.directionsLink {
+  color: var(--tenant-primary, var(--brass-strong));
+  font-weight: 700;
+  text-decoration: none;
+}
+.directionsLink:hover {
+  text-decoration: underline;
+}
+
+.mapWrap {
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius-ticket);
+  overflow: hidden;
+}
+
+@media (max-width: 700px) {
+  .locationRow { grid-template-columns: 1fr; }
+}
+
+.locationInfo {
+  display: flex;
+  flex-direction: column;
+}

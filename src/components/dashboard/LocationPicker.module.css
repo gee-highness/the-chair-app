@@ -1,0 +1,89 @@
+.wrap {
+  margin-bottom: var(--space-5);
+}
+
+.label {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--ink-soft);
+  margin-bottom: var(--space-2);
+}
+
+.searchRow {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.searchInput {
+  flex: 1;
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius-control);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  background: var(--paper-raised);
+  color: var(--ink);
+}
+
+.results {
+  list-style: none;
+  margin: 0 0 var(--space-3) 0;
+  padding: 0;
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius-control);
+  overflow: hidden;
+}
+
+.resultButton {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: var(--paper-raised);
+  border: none;
+  border-bottom: 1px solid var(--line);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+.resultButton:hover {
+  background: var(--paper-sunken);
+}
+
+.hint {
+  font-size: var(--text-xs);
+  color: var(--ink-faint);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.mapLoading {
+  height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--paper-sunken);
+  border-radius: var(--radius-ticket);
+  color: var(--ink-faint);
+  font-size: var(--text-sm);
+}
+
+.addressLabel {
+  display: block;
+  margin-top: var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.addressInput {
+  display: block;
+  width: 100%;
+  margin-top: var(--space-1);
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius-control);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: 400;
+  background: var(--paper-raised);
+  color: var(--ink);
+}

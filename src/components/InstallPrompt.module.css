@@ -1,0 +1,52 @@
+.banner {
+  position: fixed;
+  bottom: var(--space-4);
+  left: var(--space-4);
+  right: var(--space-4);
+  max-width: 420px;
+  margin: 0 auto;
+  background: var(--pine);
+  color: var(--paper);
+  border-radius: var(--radius-ticket);
+  padding: var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  z-index: 800;
+  box-shadow: 4px 4px 0 rgba(20, 35, 28, 0.2);
+}
+
+.text {
+  font-size: var(--text-sm);
+  flex: 1;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.install {
+  background: var(--brass);
+  color: var(--pine);
+  border: none;
+  border-radius: var(--radius-control);
+  padding: var(--space-2) var(--space-3);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.dismiss {
+  background: none;
+  border: none;
+  color: var(--paper);
+  opacity: 0.7;
+  font-size: 1.25rem;
+  cursor: pointer;
+  line-height: 1;
+}
+.dismiss:hover { opacity: 1; }

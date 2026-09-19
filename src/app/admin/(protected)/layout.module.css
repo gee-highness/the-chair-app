@@ -1,0 +1,29 @@
+.shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+}
+
+.header {
+  background: var(--pine);
+  color: var(--paper);
+  padding: var(--space-4) var(--space-6);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-display);
+}
+
+.brand {
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+
+.main {
+  flex: 1;
+  padding: var(--space-6);
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+}

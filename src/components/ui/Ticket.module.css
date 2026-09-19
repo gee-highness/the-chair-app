@@ -1,0 +1,39 @@
+.wrap {
+  position: relative;
+}
+
+.ticket {
+  position: relative;
+  background: var(--paper-raised);
+  border: 1.5px dashed var(--line-strong);
+  border-radius: var(--radius-ticket);
+  padding: var(--space-5);
+}
+
+/* Perforation notches on the long edges, like a torn claim ticket */
+.hole {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--paper);
+  border: 1.5px dashed var(--line-strong);
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.hole[data-side='left'] { left: -7px; }
+.hole[data-side='right'] { right: -7px; }
+
+.stamp {
+  position: absolute;
+  inset: var(--stamp-offset) calc(-1 * var(--stamp-offset)) calc(-1 * var(--stamp-offset)) var(--stamp-offset);
+  background: var(--tenant-secondary, var(--brass-soft));
+  border-radius: var(--radius-ticket);
+  z-index: 0;
+}
+
+.ticketStamped {
+  position: relative;
+  z-index: 1;
+  border-style: solid;
+}

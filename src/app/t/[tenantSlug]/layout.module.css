@@ -1,0 +1,107 @@
+.shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--tenant-font, var(--font-body));
+}
+
+.header {
+  background: var(--tenant-primary, var(--pine));
+  color: #fff;
+  padding: var(--space-4) var(--space-5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  text-decoration: none;
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-lg);
+}
+
+.logo {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-control);
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.logoFallback {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-control);
+  background: rgba(255, 255, 255, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.navLink {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+.navLink:hover { color: #fff; }
+
+.navButton {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #fff;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-control);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+.navButton:hover { background: rgba(255, 255, 255, 0.25); }
+
+.navButtonLink {
+  background: var(--tenant-secondary, var(--brass));
+  color: #fff;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-control);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.main {
+  flex: 1;
+  width: 100%;
+  max-width: var(--max-content);
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-5);
+}
+
+.footer {
+  background: var(--paper-sunken);
+  padding: var(--space-5);
+  text-align: center;
+  color: var(--ink-faint);
+  font-size: var(--text-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.footerLink {
+  color: var(--ink-faint);
+  text-decoration: underline;
+}

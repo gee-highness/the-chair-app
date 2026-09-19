@@ -1,0 +1,91 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.heading {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  margin: 0;
+}
+
+.loyaltyTicket {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4) !important;
+}
+
+.loyaltyValue {
+  font-family: var(--font-mono);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--brass-strong);
+}
+
+.loyaltyLabel {
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+}
+
+.section {
+  margin-bottom: var(--space-7);
+}
+
+.sectionTitle {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  margin: 0 0 var(--space-4) 0;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-ticket);
+  background: var(--paper-raised);
+}
+
+.rowBody {
+  flex: 1;
+}
+
+.service {
+  margin: 0;
+  font-weight: 700;
+}
+
+.meta {
+  margin: var(--space-1) 0 0 0;
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+}
+
+.stars {
+  display: flex;
+  gap: var(--space-1);
+  margin-bottom: var(--space-4);
+}
+
+.star {
+  background: none;
+  border: none;
+  font-size: var(--text-2xl);
+  color: var(--brass);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}

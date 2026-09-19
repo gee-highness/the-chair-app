@@ -1,0 +1,143 @@
+.main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-5);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--text-4xl);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.subtitle {
+  color: var(--ink-soft);
+  margin: 0 0 var(--space-6) 0;
+}
+
+.searchForm {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.searchInput {
+  flex: 1;
+  padding: var(--space-3);
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius-control);
+  font-size: var(--text-base);
+  background: var(--paper-raised);
+  color: var(--ink);
+}
+
+.nearMeNote {
+  font-size: var(--text-sm);
+  color: var(--ink-faint);
+  margin: 0 0 var(--space-3) 0;
+}
+
+.mapWrap {
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius-ticket);
+  overflow: hidden;
+  margin-bottom: var(--space-6);
+}
+
+.section {
+  margin-bottom: var(--space-7);
+}
+
+.sectionTitle {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  margin: 0 0 var(--space-4) 0;
+}
+
+.tenantGrid {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.tenantCardWrap {
+  position: relative;
+}
+
+.tenantCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4);
+  padding-right: var(--space-8);
+  border: 1.5px solid var(--line);
+  border-left: 4px solid var(--brass);
+  border-radius: var(--radius-ticket);
+  text-decoration: none;
+  color: var(--ink);
+  background: var(--paper-raised);
+}
+.tenantCard:hover {
+  background: var(--paper-sunken);
+}
+
+.favoriteButton {
+  position: absolute;
+  right: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: var(--text-xl);
+  color: var(--rust);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.distance {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--ink-faint);
+}
+
+.serviceGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-4);
+}
+
+.serviceCard {
+  display: block;
+  padding: var(--space-3);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-ticket);
+  text-decoration: none;
+  color: var(--ink);
+  background: var(--paper-raised);
+}
+.serviceCard:hover {
+  border-color: var(--brass);
+}
+
+.serviceImage {
+  width: 100%;
+  height: 90px;
+  object-fit: cover;
+  border-radius: var(--radius-control);
+  margin-bottom: var(--space-2);
+}
+
+.serviceMeta {
+  margin: var(--space-1) 0 0 0;
+  color: var(--ink-soft);
+  font-size: var(--text-sm);
+}
+
+.serviceTenant {
+  margin: var(--space-1) 0 0 0;
+  font-size: var(--text-xs);
+  color: var(--ink-faint);
+}
+
+.mono {
+  font-family: var(--font-mono);
+}

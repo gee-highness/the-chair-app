@@ -1,0 +1,182 @@
+/* src/styles/tokens.css
+ *
+ * Design language: "the trade ticket" — claim-ticket cards, ledger rules,
+ * brass/pine palette, monospace numerals for price/time/queue. Platform
+ * chrome (discovery, admin, dashboard) owns this identity outright.
+ * Tenant-facing surfaces (public page, booking) inherit the structural
+ * tokens (spacing/type/radius) but layer each salon's own brand color on
+ * top via --tenant-primary / --tenant-secondary / --tenant-font, set
+ * inline per-request from that tenant's `branding` — see
+ * src/lib/tenantTheme.ts. Two salons should never look like the same
+ * template wearing different logos.
+ */
+
+:root {
+  /* ---- Platform palette ---- */
+  --ink: #14231c;              /* deep pine-green-black — not pure black */
+  --ink-soft: #3d4d43;         /* secondary text on paper */
+  --ink-faint: #6b7a70;        /* tertiary / placeholder text */
+  --paper: #edefe7;            /* sage-tinted ledger paper */
+  --paper-raised: #f7f8f2;     /* cards/tickets sitting above paper */
+  --paper-sunken: #e2e5da;     /* wells, inputs, table zebra */
+  --line: #c9c2ac;             /* hairline / ledger rule */
+  --line-strong: #a39c86;
+
+  --pine: #1f3b2e;             /* deep surface — headers, footer, sidebar */
+  --pine-raised: #274a39;
+
+  --brass: #b8873b;            /* platform accent — the one bold color */
+  --brass-strong: #96692a;
+  --brass-soft: #e9d9b8;
+
+  --rust: #a23e32;             /* status/alert only — never decorative */
+  --rust-soft: #f1dcd8;
+  --moss: #4c6b4f;             /* success/confirmed */
+  --moss-soft: #dde8dd;
+  --amber: #a67c1f;            /* pending/waiting */
+  --amber-soft: #f1e6c9;
+
+  /* ---- Type ---- */
+  --font-display: var(--font-fraunces), 'Iowan Old Style', Georgia, serif;
+  --font-body: var(--font-public-sans), 'Segoe UI', system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), 'SF Mono', Menlo, monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
+  --text-4xl: 3rem;
+  --leading-tight: 1.15;
+  --leading-normal: 1.5;
+  --leading-loose: 1.7;
+
+  /* ---- Spacing (4px base) ---- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+
+  /* ---- Radius: distinct per element kind, not one blanket value ---- */
+  --radius-control: 6px;   /* buttons, inputs — crisp, tool-like */
+  --radius-ticket: 2px;    /* cards/tickets — near-square, ledger-like */
+  --radius-pill: 999px;    /* status chips/badges only */
+
+  /* ---- Shadow: used sparingly; the primary depth cue is the offset stamp ---- */
+  --stamp-offset: 6px;
+  --focus-ring: 0 0 0 3px rgba(184, 135, 59, 0.45);
+
+  --max-content: 1200px;
+  --max-narrow: 640px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --ink: #eef1e9;
+    --ink-soft: #c3cbbf;
+    --ink-faint: #8b9a8e;
+    --paper: #10190f;
+    --paper-raised: #16211a;
+    --paper-sunken: #0c130c;
+    --line: #33422f;
+    --line-strong: #4a5c44;
+    --pine: #0c1712;
+    --pine-raised: #142019;
+    --brass: #d9a75a;
+    --brass-strong: #f0c079;
+    --brass-soft: #3a2f18;
+    --rust: #e08170;
+    --rust-soft: #3a1f1a;
+    --moss: #8fbf93;
+    --moss-soft: #1c2b1e;
+    --amber: #d9b563;
+    --amber-soft: #362b12;
+  }
+}
+
+:root[data-theme='dark'] {
+  --ink: #eef1e9;
+  --ink-soft: #c3cbbf;
+  --ink-faint: #8b9a8e;
+  --paper: #10190f;
+  --paper-raised: #16211a;
+  --paper-sunken: #0c130c;
+  --line: #33422f;
+  --line-strong: #4a5c44;
+  --pine: #0c1712;
+  --pine-raised: #142019;
+  --brass: #d9a75a;
+  --brass-strong: #f0c079;
+  --brass-soft: #3a2f18;
+  --rust: #e08170;
+  --rust-soft: #3a1f1a;
+  --moss: #8fbf93;
+  --moss-soft: #1c2b1e;
+  --amber: #d9b563;
+  --amber-soft: #362b12;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+}
+
+/* Visible keyboard focus everywhere — never suppressed */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-control);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.container {
+  max-width: var(--max-content);
+  margin: 0 auto;
+  padding: 0 var(--space-5);
+}
+
+.container--narrow {
+  max-width: var(--max-narrow);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

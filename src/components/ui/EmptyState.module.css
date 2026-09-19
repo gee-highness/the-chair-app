@@ -1,0 +1,25 @@
+.wrap {
+  text-align: left;
+  padding: var(--space-7) var(--space-5);
+  border: 1.5px dashed var(--line-strong);
+  border-radius: var(--radius-ticket);
+  background: var(--paper-sunken);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  margin: 0 0 var(--space-2) 0;
+}
+
+.description {
+  color: var(--ink-soft);
+  margin: 0 0 var(--space-4) 0;
+  max-width: 42ch;
+}
+
+.action {
+  display: flex;
+  gap: var(--space-3);
+}
