@@ -35,10 +35,8 @@
     "qrcode": "^1.5.4"
   },
   "overrides": {
-    "react-leaflet": {
-      "react": "$react",
-      "react-dom": "$react-dom"
-    }
+  "react-leaflet": { "react": "$react", "react-dom": "$react-dom" },
+  "@sanity/icons": { "react": "$react" }
   },
   "devDependencies": {
     "typescript": "^5.3.3",
