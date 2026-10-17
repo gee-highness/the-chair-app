@@ -10,6 +10,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useStandalone } from '@/hooks/useStandalone';
 import styles from './TenantTabBar.module.css';
 
 interface TenantTabBarProps {
@@ -26,6 +27,7 @@ export function TenantTabBar({
   showDashboard = false,
 }: TenantTabBarProps) {
   const pathname = usePathname();
+  const standalone = useStandalone();
   const base = `/t/${tenantSlug}`;
 
   // Which tab is currently active?
@@ -66,6 +68,15 @@ export function TenantTabBar({
           <span className={styles.icon} aria-hidden="true">✓</span>
           <span className={styles.label}>My bookings</span>
         </Link>
+      )}
+
+      {standalone && (
+        // Opens as its own window so this installed app keeps its place.
+        <a href="/" target="_blank" rel="noopener" className={styles.tab} title="Discover more salons">
+          <span className={styles.icon} aria-hidden="true">🔎</span>
+          <span className={styles.label}>Discover</span>
+          <span className="visually-hidden"> (opens in a new window)</span>
+        </a>
       )}
 
       {(isStaff || showDashboard) && (

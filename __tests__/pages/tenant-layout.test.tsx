@@ -126,4 +126,38 @@ describe('TenantLayout', () => {
     expect(screen.getByRole('button', { name: 'Forgot password?' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Create an account/ })).toBeInTheDocument();
   });
+
+  describe('getting back to discovery', () => {
+    const realMatchMedia = window.matchMedia;
+    const mockSalon = () =>
+      mockFetch({
+        '/api/auth/verify': () => ({ status: 401, json: {} }),
+        '/api/public/tenants/demo': () => ({ json: { tenant: { name: 'Demo Salon', branding: {} }, settings: {} } }),
+      });
+    afterEach(() => {
+      window.matchMedia = realMatchMedia;
+    });
+
+    it('in a browser tab, the arrow goes back to discovery in the same tab', async () => {
+      mockSalon();
+      render(<TenantLayout><p>x</p></TenantLayout>);
+      const back = await screen.findByRole('link', { name: 'Back to discovery' });
+      expect(back).toHaveAttribute('href', '/');
+      expect(back).not.toHaveAttribute('target');
+    });
+
+    it('in an installed app, Discover opens as its own window so the app keeps its place', async () => {
+      window.matchMedia = ((q: string) => ({ matches: q.includes('standalone'), media: q, addEventListener: () => {}, removeEventListener: () => {} })) as any;
+      mockSalon();
+      render(<TenantLayout><p>x</p></TenantLayout>);
+      const links = await screen.findAllByRole('link', { name: /Discover more salons/ });
+      expect(links.length).toBeGreaterThan(0);
+      for (const l of links) {
+        expect(l).toHaveAttribute('href', '/');
+        expect(l).toHaveAttribute('target', '_blank');
+        expect(l).toHaveAttribute('rel', expect.stringContaining('noopener'));
+      }
+      expect(screen.queryByRole('link', { name: 'Back to discovery' })).not.toBeInTheDocument();
+    });
+  });
 });

@@ -26,6 +26,7 @@ import { useParams, usePathname } from 'next/navigation';
 import { tenantThemeStyle } from '@/lib/tenantTheme';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ToastProvider } from '@/components/ui/Toast';
+import { useStandalone } from '@/hooks/useStandalone';
 import { CustomerSignInModal } from '@/components/CustomerSignInModal';
 import { TenantTabBar } from '@/components/TenantTabBar';
 import { useCustomerAuth } from '@/hooks/useCustomerAuth';
@@ -48,6 +49,7 @@ export default function TenantLayout({ children }: { children: React.ReactNode }
   const [checkedAuth, setCheckedAuth] = useState(false);
   const [tenantInfo, setTenantInfo] = useState<{ name: string; branding?: any; logoUrl?: string } | null>(null);
   const [navOpen, setNavOpen] = useState(false);
+  const standalone = useStandalone(); // hooks stay above the early return below
   const { customer, signInOpen, setSignInOpen, onSignedIn } = useCustomerAuth();
 
   useEffect(() => {
@@ -119,9 +121,26 @@ export default function TenantLayout({ children }: { children: React.ReactNode }
       <div className={styles.shell} style={tenantThemeStyle(tenantInfo?.branding)}>
         <header className={styles.header}>
           <div className={styles.headerRow}>
-            <Link href="/" title="Back to discovery" className={styles.backIcon} aria-label="Back to discovery">
-              ←
-            </Link>
+            {standalone ? (
+              // Installed app: opening discovery in the same window would pull
+              // the app out of its own scope, so it opens as its own window
+              // (a browser overlay with a close button, or the Discovery app
+              // if it is installed) and the salon app stays where it is.
+              <a
+                href="/"
+                target="_blank"
+                rel="noopener"
+                title="Discover more salons"
+                className={styles.discoverLink}
+                aria-label="Discover more salons (opens in a new window)"
+              >
+                <span aria-hidden="true">⌕</span> Discover
+              </a>
+            ) : (
+              <Link href="/" title="Back to discovery" className={styles.backIcon} aria-label="Back to discovery">
+                ←
+              </Link>
+            )}
             <Link href={`/t/${tenantSlug}`} className={styles.brand}>
               {tenantInfo?.logoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
