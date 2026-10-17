@@ -118,3 +118,35 @@ self.addEventListener('fetch', (event) => {
       )
   );
 });
+
+// ---- Web Push: "New booking" alerts for staff (see src/lib/push.ts) ----
+self.addEventListener('push', (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch (e) {
+    data = { title: 'The Chair App', body: event.data ? event.data.text() : '' };
+  }
+  event.waitUntil(
+    self.registration.showNotification(data.title || 'The Chair App', {
+      body: data.body || '',
+      icon: '/logo-192.png',
+      badge: '/logo-192.png',
+      tag: data.tag || 'chair-app',
+      data: { url: data.url || '/' },
+    })
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const target = new URL((event.notification.data && event.notification.data.url) || '/', self.location.origin).href;
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windows) => {
+      for (const w of windows) {
+        if (w.url === target && 'focus' in w) return w.focus();
+      }
+      return self.clients.openWindow(target);
+    })
+  );
+});

@@ -7,6 +7,7 @@ import { Ticket } from '@/components/ui/Ticket';
 import { Badge, statusTone } from '@/components/ui/Badge';
 import { Skeleton, SkeletonLines } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { PushToggle } from '@/components/dashboard/PushToggle';
 import { useCurrency } from '@/hooks/useCurrency';
 import { useRole } from '@/hooks/useRole';
 import { formatPrice } from '@/lib/currency';
@@ -108,6 +109,8 @@ export default function DashboardOverview() {
         {role === 'barber' && <Link href={`/t/${tenantSlug}/dashboard/posts`} className={styles.quickAction}>Post your work</Link>}
         <Link href={`/t/${tenantSlug}/dashboard/guide`} className={styles.quickAction}>Guide</Link>
       </div>
+
+      <PushToggle />
 
       <div className={styles.statRow}>
         <Ticket className={styles.stat}>

@@ -9,6 +9,7 @@ import { Appointment, Customer } from '@/lib/types';
 import { computeAvailableSlots, toBookedRange } from '@/lib/availability';
 import { isValidEmail, normalizeEmail } from '@/lib/identity';
 import { sendBookingEmail } from '@/lib/notifications';
+import { notifyNewBooking } from '@/lib/push';
 import { ObjectId, WithId } from 'mongodb';
 
 export const dynamic = 'force-dynamic';
@@ -187,6 +188,12 @@ export async function POST(
     await sendBookingEmail({
       kind: 'received', to: customerEmail, customerName, salonName: tenant.name, tenantSlug: tenant.slug,
       serviceName: service.name, barberName: barber.name, dateTime: requested,
+    });
+
+    // Best-effort push alert to the salon's staff (a no-op unless push is configured).
+    await notifyNewBooking(db, {
+      tenantId: tenant._id!, tenantSlug: tenant.slug, barberId: new ObjectId(barberId),
+      customerName, serviceName: service.name, dateTime: requested,
     });
 
     return NextResponse.json({ _id: result.insertedId, ...appointment }, { status: 201 });

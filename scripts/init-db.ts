@@ -27,6 +27,7 @@ async function initializeDatabase() {
       'sessions',
       'loginAttempts',
       'reviews',
+      'pushSubscriptions',
       'favorites',
       'customerClaimSessions',
       'passwordResets',
@@ -105,6 +106,11 @@ async function initializeDatabase() {
     await db.collection('reviews').createIndex({ tenantId: 1, status: 1 });
     await db.collection('reviews').createIndex({ barberId: 1, status: 1 });
     console.log('✓ Created indexes on reviews');
+
+    // Booking alerts (web push): one row per device; look up a salon's devices when a booking arrives.
+    await db.collection('pushSubscriptions').createIndex({ endpoint: 1 }, { unique: true });
+    await db.collection('pushSubscriptions').createIndex({ tenantId: 1 });
+    console.log('✓ Created indexes on pushSubscriptions');
 
     // Favorites: one favorite per customer+tenant pair.
     await db.collection('favorites').createIndex({ customerId: 1, tenantId: 1 }, { unique: true });
