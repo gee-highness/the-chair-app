@@ -29,7 +29,7 @@ describe('DashboardShell', () => {
 
   it('an admin sees every nav item, including admin-only ones', () => {
     render(
-      <DashboardShell tenantSlug="demo" tenantName="Demo Salon" role="admin">
+      <DashboardShell tenantSlug="demo" currency="USD" tenantName="Demo Salon" role="admin">
         <p>Content</p>
       </DashboardShell>
     );
@@ -40,7 +40,7 @@ describe('DashboardShell', () => {
 
   it('a receptionist does NOT see admin-only nav items (Services, Barbers, Reviews, Analytics, Settings)', () => {
     render(
-      <DashboardShell tenantSlug="demo" tenantName="Demo Salon" role="receptionist">
+      <DashboardShell tenantSlug="demo" currency="USD" tenantName="Demo Salon" role="receptionist">
         <p>Content</p>
       </DashboardShell>
     );
@@ -53,7 +53,7 @@ describe('DashboardShell', () => {
 
   it('a barber sees only Overview and Appointments', () => {
     render(
-      <DashboardShell tenantSlug="demo" tenantName="Demo Salon" role="barber">
+      <DashboardShell tenantSlug="demo" currency="USD" tenantName="Demo Salon" role="barber">
         <p>Content</p>
       </DashboardShell>
     );
@@ -66,7 +66,7 @@ describe('DashboardShell', () => {
 
   it('every role gets an Account item (change password lives there)', () => {
     for (const role of ['admin', 'receptionist', 'barber'] as const) {
-      const { unmount } = render(<DashboardShell tenantSlug="demo" tenantName="Demo" role={role}><div /></DashboardShell>);
+      const { unmount } = render(<DashboardShell tenantSlug="demo" currency="USD" tenantName="Demo" role={role}><div /></DashboardShell>);
       expect(screen.getByRole('link', { name: /Account/ })).toHaveAttribute('href', '/t/demo/dashboard/account');
       unmount();
     }
@@ -74,7 +74,7 @@ describe('DashboardShell', () => {
 
   it('displays the tenant name and the role in the sidebar brand', () => {
     render(
-      <DashboardShell tenantSlug="demo" tenantName="Demo Salon" role="admin">
+      <DashboardShell tenantSlug="demo" currency="USD" tenantName="Demo Salon" role="admin">
         <p>Content</p>
       </DashboardShell>
     );
@@ -85,7 +85,7 @@ describe('DashboardShell', () => {
   it('logout calls the logout API, then navigates to the tenant login page', async () => {
     global.fetch = vi.fn().mockResolvedValue({ ok: true }) as any;
     render(
-      <DashboardShell tenantSlug="demo" tenantName="Demo Salon" role="admin">
+      <DashboardShell tenantSlug="demo" currency="USD" tenantName="Demo Salon" role="admin">
         <p>Content</p>
       </DashboardShell>
     );
@@ -97,7 +97,7 @@ describe('DashboardShell', () => {
 
   it('provides the role to descendant components via RoleProvider (useRole())', () => {
     render(
-      <DashboardShell tenantSlug="demo" tenantName="Demo Salon" role="receptionist">
+      <DashboardShell tenantSlug="demo" currency="USD" tenantName="Demo Salon" role="receptionist">
         <ChildReadingRole />
       </DashboardShell>
     );

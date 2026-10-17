@@ -15,10 +15,26 @@ export interface TenantBranding {
 }
 
 const FONT_STACKS: Record<string, string> = {
-  display: "'Fraunces', 'Iowan Old Style', Georgia, serif",
-  classic: "'Georgia', 'Iowan Old Style', serif",
-  modern: "'Public Sans', 'Segoe UI', system-ui, sans-serif",
+  display: "'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif",
+  classic: "Georgia, 'Times New Roman', serif",
+  modern: "var(--font-space-grotesk), 'Space Grotesk', system-ui, sans-serif",
 };
+
+/** Readable text colour for a fill: white on dark colours, near-black on light ones (WCAG relative luminance). */
+export function onColor(hex: string): string {
+  const clean = hex.replace('#', '');
+  if (clean.length !== 6) return '#ffffff';
+  const num = parseInt(clean, 16);
+  const lin = (c: number) => {
+    const v = c / 255;
+    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+  };
+  const lum = 0.2126 * lin((num >> 16) & 0xff) + 0.7152 * lin((num >> 8) & 0xff) + 0.0722 * lin(num & 0xff);
+  // Contrast ratio against white vs against the near-black ink (#14202b, luminance ~0.013); pick the higher.
+  const againstWhite = 1.05 / (lum + 0.05);
+  const againstInk = (lum + 0.05) / 0.063;
+  return againstWhite >= againstInk ? '#ffffff' : '#14202b';
+}
 
 /** Lighten/darken a hex color by `amount` (-1..1) for hover/soft variants. */
 function shade(hex: string, amount: number): string {
@@ -42,6 +58,7 @@ export function tenantThemeStyle(branding: TenantBranding | undefined): CSSPrope
 
   return {
     '--tenant-primary': primary,
+    '--tenant-on-primary': onColor(primary),
     '--tenant-primary-hover': shade(primary, -0.12),
     '--tenant-primary-soft': shade(primary, 0.82),
     '--tenant-secondary': secondary,

@@ -11,7 +11,13 @@ import { SITE_URL } from '@/lib/site';
 export const dynamic = 'force-dynamic';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const entries: MetadataRoute.Sitemap = [{ url: SITE_URL, changeFrequency: 'daily', priority: 1 }];
+  const entries: MetadataRoute.Sitemap = [
+    { url: SITE_URL, changeFrequency: 'daily', priority: 1 },
+    { url: `${SITE_URL}/guide`, changeFrequency: 'monthly', priority: 0.4 },
+    { url: `${SITE_URL}/privacy`, changeFrequency: 'yearly', priority: 0.2 },
+    { url: `${SITE_URL}/terms`, changeFrequency: 'yearly', priority: 0.2 },
+    { url: `${SITE_URL}/contact`, changeFrequency: 'yearly', priority: 0.2 },
+  ];
 
   try {
     const db = await getDatabase();

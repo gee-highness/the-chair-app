@@ -7,7 +7,7 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { CustomerSignInModal } from '@/components/CustomerSignInModal';
 import { renderWithToast } from '../helpers/testProviders';
-import { mockFetch } from '../helpers/fetchMock';
+import { mockFetch, bodyOf } from '../helpers/fetchMock';
 
 const originalFetch = global.fetch;
 const originalLocation = window.location;
@@ -56,7 +56,7 @@ describe('CustomerSignInModal', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Sign in' }));
 
     await waitFor(() => expect(onSignedIn).toHaveBeenCalledTimes(1));
-    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({ email: 'jamie@example.test', password: 'Correct-Pass-1', tenantSlug: 'demo' });
+    expect(bodyOf(fetchMock.mock.calls[0])).toEqual({ email: 'jamie@example.test', password: 'Correct-Pass-1', tenantSlug: 'demo' });
   });
 
   it('a wrong password shows the server message and does not sign in', async () => {
@@ -87,7 +87,7 @@ describe('CustomerSignInModal', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Create account' }));
 
     await waitFor(() => expect(onSignedIn).toHaveBeenCalled());
-    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({
+    expect(bodyOf(fetchMock.mock.calls[0])).toEqual({
       name: 'New Person', email: 'new@example.test', phone: '555 010 0100', password: 'Brand-New-Pass1', tenantSlug: 'demo',
     });
   });
@@ -117,7 +117,9 @@ describe('CustomerSignInModal', () => {
     await userEvent.type(screen.getByLabelText('Email'), 'jamie@example.test');
     await userEvent.click(screen.getByRole('button', { name: 'Send reset link' }));
 
-    expect(await screen.findByRole('status')).toHaveTextContent('geehyness22@gmail.com');
+    // The message appears inline and as a toast, so there is more than one status region.
+    const statuses = await screen.findAllByRole('status');
+    expect(statuses.some((el) => el.textContent?.includes('geehyness22@gmail.com'))).toBe(true);
     expect(screen.getByRole('link', { name: /geehyness22@gmail.com/ })).toHaveAttribute('href', expect.stringContaining('mailto:geehyness22@gmail.com'));
   });
 });

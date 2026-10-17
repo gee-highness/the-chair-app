@@ -12,10 +12,15 @@
 // same isolation for the same reason: it is its own installed app, not a
 // sub-page of the discovery site it shares an origin with.
 const SCOPE_PATHNAME = new URL(self.registration.scope).pathname;
-const TENANT_MATCH = SCOPE_PATHNAME.match(/^\/t\/([^/]+)\//);
-const IS_ADMIN = !TENANT_MATCH && /^\/admin\//.test(SCOPE_PATHNAME);
-const SCOPE_ID = TENANT_MATCH ? `t-${TENANT_MATCH[1]}` : IS_ADMIN ? 'admin' : 'root';
-const HOME_PATH = TENANT_MATCH ? `/t/${TENANT_MATCH[1]}` : IS_ADMIN ? '/admin' : '/';
+const BARBER_MATCH = SCOPE_PATHNAME.match(/^\/t\/([^/]+)\/barbers\/([^/]+)\//);
+const TENANT_MATCH = !BARBER_MATCH && SCOPE_PATHNAME.match(/^\/t\/([^/]+)\//);
+const IS_ADMIN = !BARBER_MATCH && !TENANT_MATCH && /^\/admin\//.test(SCOPE_PATHNAME);
+const SCOPE_ID = BARBER_MATCH
+  ? `b-${BARBER_MATCH[1]}-${BARBER_MATCH[2]}`
+  : TENANT_MATCH ? `t-${TENANT_MATCH[1]}` : IS_ADMIN ? 'admin' : 'root';
+const HOME_PATH = BARBER_MATCH
+  ? `/t/${BARBER_MATCH[1]}/barbers/${BARBER_MATCH[2]}`
+  : TENANT_MATCH ? `/t/${TENANT_MATCH[1]}` : IS_ADMIN ? '/admin' : '/';
 
 const CACHE_VERSION = `chair-app-v1-${SCOPE_ID}`;
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
@@ -111,5 +116,37 @@ self.addEventListener('fetch', (event) => {
       .catch(() =>
         caches.match(request).then((cached) => cached || caches.match(HOME_PATH).then((home) => home || caches.match('/offline.html')))
       )
+  );
+});
+
+// ---- Web Push: "New booking" alerts for staff (see src/lib/push.ts) ----
+self.addEventListener('push', (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch (e) {
+    data = { title: 'The Chair App', body: event.data ? event.data.text() : '' };
+  }
+  event.waitUntil(
+    self.registration.showNotification(data.title || 'The Chair App', {
+      body: data.body || '',
+      icon: '/logo-192.png',
+      badge: '/logo-192.png',
+      tag: data.tag || 'chair-app',
+      data: { url: data.url || '/' },
+    })
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const target = new URL((event.notification.data && event.notification.data.url) || '/', self.location.origin).href;
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windows) => {
+      for (const w of windows) {
+        if (w.url === target && 'focus' in w) return w.focus();
+      }
+      return self.clients.openWindow(target);
+    })
   );
 });

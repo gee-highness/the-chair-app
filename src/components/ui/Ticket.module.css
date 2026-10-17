@@ -5,13 +5,19 @@
 .ticket {
   position: relative;
   background: var(--paper-raised);
-  border: 1.5px dashed var(--line-strong);
+  border: 1px solid var(--line);
   border-radius: var(--radius-ticket);
   padding: var(--space-5);
+  transition: box-shadow 160ms ease, border-color 160ms ease;
+}
+.ticket:hover {
+  box-shadow: var(--glow);
 }
 
-/* Perforation notches on the long edges, like a torn claim ticket */
+/* Servo look: no perforation notches or offset stamp. Kept as hidden hooks
+   so existing markup needs no change. */
 .hole {
+  display: none;
   position: absolute;
   width: 12px;
   height: 12px;
@@ -25,6 +31,7 @@
 .hole[data-side='right'] { right: -7px; }
 
 .stamp {
+  display: none;
   position: absolute;
   inset: var(--stamp-offset) calc(-1 * var(--stamp-offset)) calc(-1 * var(--stamp-offset)) var(--stamp-offset);
   background: var(--tenant-secondary, var(--brass-soft));

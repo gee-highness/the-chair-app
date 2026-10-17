@@ -1,0 +1,40 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  text-align: center;
+}
+
+.qr {
+  width: 220px;
+  height: 220px;
+  background: #fff;
+  padding: var(--space-2);
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius-ticket);
+}
+
+.link {
+  width: 100%;
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  background: var(--paper-sunken);
+  border-radius: var(--radius-control);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  word-break: break-all;
+}
+
+.help {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: center;
+}

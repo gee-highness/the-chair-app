@@ -4,6 +4,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import Link from 'next/link';
+import { useDeferredMount } from '@/hooks/useDeferredMount';
 
 const markerIcon = L.icon({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
@@ -43,9 +44,12 @@ export default function DiscoveryMap({
   pins: Pin[];
   height?: number;
 }) {
+  const ready = useDeferredMount();
   const points: [number, number][] = pins.map((p) => [p.lat, p.lng]);
   const hasBoundsFit = !center && points.length > 0;
   const fallbackCenter: [number, number] = [39.8283, -98.5795]; // geographic center of the contiguous US — neutral default when there's nothing to fit yet
+
+  if (!ready) return <div style={{ height }} aria-hidden="true" />;
 
   return (
     <MapContainer

@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import { Ticket } from '@/components/ui/Ticket';
 import { safeNextPath } from '@/lib/identity';
 import { SignInForm, destinationAfterSignIn, type AuthMode, type SignedInResult } from './SignInForm';
+import { LogoMark } from '@/components/Logo';
 import styles from './AuthPage.module.css';
 
 const HEADINGS: Record<AuthMode, string> = { signin: 'Sign in', register: 'Create your account', forgot: 'Reset your password' };
@@ -35,6 +36,7 @@ export function AuthPage({ tenantSlug, eyebrow }: { tenantSlug?: string; eyebrow
         <Link href={backHref}>← Back</Link>
       </p>
       <Ticket className={styles.ticket}>
+        {!tenantSlug && <LogoMark size={44} />}
         <p className={styles.eyebrow}>{eyebrow}</p>
         <h1 className={styles.heading}>{HEADINGS[mode]}</h1>
         <SignInForm tenantSlug={tenantSlug} onModeChange={setMode} onSignedIn={handleSignedIn} />

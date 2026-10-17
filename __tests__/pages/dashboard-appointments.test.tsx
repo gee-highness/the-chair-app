@@ -2,7 +2,7 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { mockFetch } from '../helpers/fetchMock';
+import { mockFetch, bodyOf } from '../helpers/fetchMock';
 import AppointmentsBoard from '@/app/t/[tenantSlug]/dashboard/appointments/page';
 
 const originalFetch = global.fetch;
@@ -63,7 +63,7 @@ describe('Appointments dashboard board', () => {
     await waitFor(() => {
       const putCall = fetchMock.mock.calls.find((c: any) => c[1]?.method === 'PUT');
       expect(putCall).toBeTruthy();
-      expect(JSON.parse(putCall![1].body)).toEqual({ _id: '1', status: 'confirmed' });
+      expect(bodyOf(putCall!)).toEqual({ _id: '1', status: 'confirmed' });
     });
   });
 

@@ -98,3 +98,59 @@
   font-weight: 600;
   font-size: var(--text-sm);
 }
+.appActions { margin: 0 var(--space-4) var(--space-5); }
+
+/* ---- Barber profile polish ---- */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+  margin: 0 var(--space-4) var(--space-5);
+  padding: var(--space-3) 0;
+  list-style: none;
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-ticket);
+  text-align: center;
+}
+.stats li { display: flex; flex-direction: column; gap: 2px; }
+.stats li + li { border-left: 1px solid var(--line); }
+.statValue { font-size: var(--text-xl); font-weight: 700; }
+.statLabel { font-size: var(--text-xs); color: var(--ink-soft); }
+
+.portfolioButton {
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: var(--radius-ticket);
+  cursor: zoom-in;
+}
+.portfolioButton:hover .portfolioImage { border-color: var(--tenant-primary, var(--brass)); box-shadow: var(--glow); }
+
+.lightboxImage {
+  display: block;
+  width: 100%;
+  max-height: 70dvh;
+  object-fit: contain;
+  border-radius: var(--radius-control);
+}
+
+.reviewList { display: grid; gap: var(--space-3); }
+.reviewCard {
+  padding: var(--space-4);
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-ticket);
+}
+.reviewStars { margin: 0 0 var(--space-1); color: var(--amber); letter-spacing: 2px; }
+.reviewText { margin: 0; color: var(--ink-soft); }
+
+/* Always-reachable Book button, sitting just above the salon tab bar. */
+.stickyBook {
+  position: sticky;
+  bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+  z-index: 20;
+  margin-top: var(--space-6);
+  padding: var(--space-3) var(--space-4);
+  background: linear-gradient(to top, var(--paper) 70%, transparent);
+}

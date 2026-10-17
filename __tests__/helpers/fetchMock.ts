@@ -49,3 +49,9 @@ export function mockFetchOnce(json: any, status = 200) {
   global.fetch = fn as any;
   return fn;
 }
+
+/** The parsed JSON body of a recorded fetch call, `call` being one entry of `fetchMock.mock.calls`. */
+export function bodyOf(call: unknown[]): any {
+  const init = call[1] as { body?: unknown } | undefined;
+  return JSON.parse(String(init?.body ?? 'null'));
+}

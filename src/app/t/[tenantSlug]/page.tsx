@@ -9,12 +9,13 @@
 
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { tenantThemeStyle } from '@/lib/tenantTheme';
 import { SkeletonLines } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/Button';
+import { AppActions } from '@/components/AppActions';
 import { CustomerSignInModal } from '@/components/CustomerSignInModal';
 import { useCustomerAuth } from '@/hooks/useCustomerAuth';
 import { formatPrice, DEFAULT_CURRENCY } from '@/lib/currency';
@@ -47,10 +48,35 @@ interface TenantDetails {
   averageRating: number | null;
 }
 
+function ServiceRow({ tenantSlug, currency, s }: { tenantSlug: string; currency: string; s: TenantDetails['services'][number] }) {
+  return (
+    <Link href={`/t/${tenantSlug}/book?service=${s._id}`} className={styles.serviceMenuRow}>
+      {s.imageUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={s.imageUrl} alt="" className={styles.serviceThumb} />
+      )}
+      <div className={styles.serviceMenuInfo}>
+        <p className={styles.serviceMenuName}>{s.name}</p>
+        {s.description && <p className={styles.serviceMenuDescription}>{s.description}</p>}
+        <p className={styles.serviceMenuMeta}>{s.duration} min</p>
+      </div>
+      <span className={styles.serviceMenuPrice}>{formatPrice(s.price, currency)}</span>
+      <span className={styles.serviceBook} aria-hidden="true">Book</span>
+    </Link>
+  );
+}
+
+function ratingBreakdown(reviews: Review[]) {
+  const counts = [0, 0, 0, 0, 0];
+  for (const r of reviews) if (r.rating >= 1 && r.rating <= 5) counts[r.rating - 1] += 1;
+  return counts.reverse().map((n, i) => ({ stars: 5 - i, n }));
+}
+
 export default function TenantHome() {
   const { tenantSlug } = useParams<{ tenantSlug: string }>();
   const [data, setData] = useState<TenantDetails | null>(null);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<string>('all');
   const { customer, signInOpen, setSignInOpen, requireSignIn, onSignedIn } = useCustomerAuth();
 
   useEffect(() => {
@@ -83,12 +109,25 @@ export default function TenantHome() {
     });
   };
 
+  const groups = useMemo(() => {
+    if (!data) return [];
+    const { services, categories } = data;
+    const out = categories
+      .map((c) => ({ id: c._id, name: c.name, items: services.filter((s) => s.categoryId === c._id) }))
+      .filter((g) => g.items.length > 0);
+    const rest = services.filter((s) => !s.categoryId || !categories.some((c) => c._id === s.categoryId));
+    if (rest.length > 0) out.push({ id: 'more', name: out.length > 0 ? 'More services' : 'Services', items: rest });
+    return out;
+  }, [data]);
+
   if (!data) return <SkeletonLines count={8} />;
 
   const { tenant, settings, barbers, services, categories, reviews, averageRating } = data;
   const location = settings?.location;
   const currency = tenant.currency || DEFAULT_CURRENCY;
-  const uncategorized = services.filter((s) => !s.categoryId || !categories.some((c) => c._id === s.categoryId));
+  const visibleGroups = activeCategory === 'all' ? groups : groups.filter((g) => g.id === activeCategory);
+  const breakdown = ratingBreakdown(reviews);
+  const phone = settings?.phone;
 
   return (
     <div style={tenantThemeStyle(tenant.branding)}>
@@ -115,6 +154,25 @@ export default function TenantHome() {
         </Link>
       </section>
 
+      <div className={styles.quickActions} role="group" aria-label="Quick actions">
+        {phone && (
+          <a className={styles.quickAction} href={`tel:${phone.replace(/\s+/g, '')}`}>
+            <span aria-hidden="true">☎</span> Call
+          </a>
+        )}
+        {location?.lat != null && location?.lng != null && (
+          <a
+            className={styles.quickAction}
+            href={`https://www.google.com/maps/dir/?api=1&destination=${location.lat},${location.lng}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span aria-hidden="true">➤</span> Directions
+          </a>
+        )}
+        <AppActions name={settings?.title || tenant.name} path={`/t/${tenantSlug}`} />
+      </div>
+
       {barbers.length > 0 && (
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Our barbers</h2>
@@ -136,50 +194,37 @@ export default function TenantHome() {
       )}
 
       {(categories.length > 0 || services.length > 0) && (
-        <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Services</h2>
+        <section className={styles.section} aria-labelledby="services-h">
+          <h2 id="services-h" className={styles.sectionTitle}>Services</h2>
           {services.length === 0 ? (
             <EmptyState title="No services listed yet" />
           ) : (
             <>
-              {categories.map((c) => {
-                const inCategory = services.filter((s) => s.categoryId === c._id);
-                if (inCategory.length === 0) return null;
-                return (
-                  <div key={c._id} className={styles.serviceCategoryGroup}>
-                    <h3 className={styles.serviceCategoryTitle}>{c.name}</h3>
-                    <div className={styles.serviceMenu}>
-                      {inCategory.map((s) => (
-                        <Link key={s._id} href={`/t/${tenantSlug}/book?service=${s._id}`} className={styles.serviceMenuRow}>
-                          <div className={styles.serviceMenuInfo}>
-                            <p className={styles.serviceMenuName}>{s.name}</p>
-                            {s.description && <p className={styles.serviceMenuDescription}>{s.description}</p>}
-                            <p className={styles.serviceMenuMeta}>{s.duration} min</p>
-                          </div>
-                          <span className={styles.serviceMenuPrice}>{formatPrice(s.price, currency)}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-              {uncategorized.length > 0 && (
-                <div className={styles.serviceCategoryGroup}>
-                  {categories.length > 0 && <h3 className={styles.serviceCategoryTitle}>More services</h3>}
+              {groups.length > 1 && (
+                <div className={styles.categoryChips} role="group" aria-label="Service categories">
+                  {[{ id: 'all', name: 'All' }, ...groups].map((g) => (
+                    <button
+                      key={g.id}
+                      type="button"
+                      className={[styles.categoryChip, activeCategory === g.id ? styles.categoryChipActive : ''].join(' ')}
+                      aria-pressed={activeCategory === g.id}
+                      onClick={() => setActiveCategory(g.id)}
+                    >
+                      {g.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {visibleGroups.map((g) => (
+                <div key={g.id} className={styles.serviceCategoryGroup}>
+                  {(groups.length > 1 || g.name !== 'Services') && <h3 className={styles.serviceCategoryTitle}>{g.name}</h3>}
                   <div className={styles.serviceMenu}>
-                    {uncategorized.map((s) => (
-                      <Link key={s._id} href={`/t/${tenantSlug}/book?service=${s._id}`} className={styles.serviceMenuRow}>
-                        <div className={styles.serviceMenuInfo}>
-                          <p className={styles.serviceMenuName}>{s.name}</p>
-                          {s.description && <p className={styles.serviceMenuDescription}>{s.description}</p>}
-                          <p className={styles.serviceMenuMeta}>{s.duration} min</p>
-                        </div>
-                        <span className={styles.serviceMenuPrice}>{formatPrice(s.price, currency)}</span>
-                      </Link>
+                    {g.items.map((svc) => (
+                      <ServiceRow key={svc._id} tenantSlug={tenantSlug} currency={currency} s={svc} />
                     ))}
                   </div>
                 </div>
-              )}
+              ))}
             </>
           )}
         </section>
@@ -211,6 +256,26 @@ export default function TenantHome() {
       {reviews.length > 0 && (
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>What customers say</h2>
+          {averageRating != null && (
+            <div className={styles.ratingSummary}>
+              <div className={styles.ratingBig}>
+                <span className={styles.ratingNumber}>{averageRating.toFixed(1)}</span>
+                <span className={styles.ratingStarsBig} aria-hidden="true">★</span>
+                <span className={styles.ratingCount}>{reviews.length} review{reviews.length === 1 ? '' : 's'}</span>
+              </div>
+              <ul className={styles.ratingBars} aria-label="Rating breakdown">
+                {breakdown.map(({ stars, n }) => (
+                  <li key={stars}>
+                    <span>{stars}★</span>
+                    <span className={styles.ratingTrack}>
+                      <span className={styles.ratingFill} style={{ width: `${reviews.length ? (n / reviews.length) * 100 : 0}%` }} />
+                    </span>
+                    <span className={styles.ratingN}>{n}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           <div className={styles.reviewGrid}>
             {reviews.slice(0, 6).map((r) => (
               <div key={r._id} className={styles.reviewCard}>

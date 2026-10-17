@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonLines } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
+import { useConfirm } from '@/components/ui/Confirm';
 import styles from './page.module.css';
 
 interface Admin {
@@ -27,6 +28,7 @@ interface Admin {
 
 export default function AdminsPage() {
   const toast = useToast();
+  const confirm = useConfirm();
   const [admins, setAdmins] = useState<Admin[] | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState({ username: '', email: '' });
@@ -64,7 +66,7 @@ export default function AdminsPage() {
   };
 
   const remove = async (a: Admin) => {
-    if (!confirm(`Remove ${a.username}'s platform admin access? This can't be undone.`)) return;
+    if (!(await confirm(`Remove ${a.username}'s platform admin access? This can't be undone.`))) return;
     setBusyId(a._id);
     try {
       const res = await fetch(`/api/platform/admins/${a._id}`, { method: 'DELETE' });

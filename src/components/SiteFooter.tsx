@@ -14,6 +14,9 @@
 'use client';
 import { usePathname } from 'next/navigation';
 import { SITE_HOST, SITE_NAME, discoveryUrl } from '@/lib/site';
+import Link from 'next/link';
+import { DisplayMenu } from './DisplayMenu';
+import { useStandalone } from '@/hooks/useStandalone';
 import styles from './SiteFooter.module.css';
 
 const TENANT_PATH = /^\/t\/([^/]+)/;
@@ -22,9 +25,14 @@ export function SiteFooter() {
   const pathname = usePathname() || '/';
   const tenantSlug = pathname.match(TENANT_PATH)?.[1];
   const inSalon = Boolean(tenantSlug);
+  // In an installed app, platform pages open as their own window so the app keeps its place.
+  const standalone = useStandalone();
+  const platformLink = standalone ? { target: '_blank', rel: 'noopener' } : {};
+  // Dashboard and admin pages have a fixed bottom tab bar on phones.
+  const hasBottomBar = /^\/t\/[^/]+\/dashboard(\/|$)/.test(pathname) || /^\/admin(\/|$)/.test(pathname);
 
   return (
-    <footer className={styles.footer}>
+    <footer className={[styles.footer, hasBottomBar ? styles.clearBar : ''].join(' ')}>
       <div className={styles.inner}>
         <a
           href={discoveryUrl(tenantSlug)}
@@ -43,6 +51,15 @@ export function SiteFooter() {
           <span aria-hidden="true">{' \u2197'}</span>
           {inSalon && <span className="visually-hidden"> (opens in a new tab)</span>}
         </a>
+      </div>
+      <div className={styles.inner}>
+        <nav className={styles.legal} aria-label="Legal and help">
+          <Link href="/guide" {...platformLink}>Guides</Link>
+          <Link href="/privacy" {...platformLink}>Privacy</Link>
+          <Link href="/terms" {...platformLink}>Terms</Link>
+          <Link href="/contact" {...platformLink}>Contact</Link>
+        </nav>
+        <DisplayMenu />
       </div>
     </footer>
   );

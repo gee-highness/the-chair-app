@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonLines } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
+import { useConfirm } from '@/components/ui/Confirm';
 import { downloadBase64Pdf, pdfFilename } from '@/lib/downloadPdf';
 import styles from './page.module.css';
 
@@ -32,6 +33,7 @@ interface StaffResult {
 function StaffDirectory() {
   const searchParams = useSearchParams();
   const toast = useToast();
+  const confirm = useConfirm();
   const [q, setQ] = useState(searchParams.get('tenant') || '');
   const [results, setResults] = useState<StaffResult[] | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -49,7 +51,7 @@ function StaffDirectory() {
   }, [q]);
 
   const reissue = async (s: StaffResult) => {
-    if (!confirm(`Give ${s.username} a new temporary password? Their current password will stop working and they'll be signed out everywhere.`)) return;
+    if (!(await confirm(`Give ${s.username} a new temporary password? Their current password will stop working and they'll be signed out everywhere.`))) return;
     setBusyId(s._id);
     try {
       const res = await fetch(`/api/platform/staff/${s._id}/reissue-password`, { method: 'POST' });

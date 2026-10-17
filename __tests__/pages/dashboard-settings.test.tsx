@@ -3,7 +3,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithRole } from '../helpers/testProviders';
-import { mockFetch } from '../helpers/fetchMock';
+import { mockFetch, bodyOf } from '../helpers/fetchMock';
 import SettingsPage from '@/app/t/[tenantSlug]/dashboard/settings/page';
 
 vi.mock('@/components/dashboard/LocationPicker', () => ({
@@ -54,7 +54,7 @@ describe('Settings dashboard page', () => {
     await waitFor(() => {
       const putCall = fetchMock.mock.calls.find((c: any) => c[1]?.method === 'PUT');
       expect(putCall).toBeTruthy();
-      const body = JSON.parse(putCall![1].body);
+      const body = bodyOf(putCall!);
       expect(body.settings.title).toBe('New Name');
     });
   });

@@ -1,0 +1,30 @@
+.list {
+  list-style: none;
+  margin: var(--space-5) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-4) var(--space-5);
+  min-height: 44px;
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-ticket);
+  color: var(--ink);
+  text-decoration: none;
+  transition: box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.card:hover {
+  border-color: var(--brass);
+  box-shadow: var(--glow);
+}
+
+.card span {
+  color: var(--ink-soft);
+}

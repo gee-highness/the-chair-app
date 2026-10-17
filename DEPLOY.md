@@ -63,6 +63,10 @@ Optional: `SUPPORT_EMAIL` (default `geehyness22@gmail.com`) is the address shown
 to people who use "Forgot password" while email is not configured, and printed
 in the welcome PDFs' help pages.
 
+Optional: booking alerts on staff phones (web push). See `docs/PUSH.md` for the
+three `VAPID_*` variables. Run `npm run db:init` once after deploying to create the
+subscription indexes.
+
 No domain configuration is needed in Vercel → Settings → Domains.
 
 Optional: `NEXT_PUBLIC_SITE_URL` (default `https://the-chair-app.vercel.app`) is the

@@ -20,10 +20,16 @@
 // offline cache) from the discovery homepage it happens to share an origin
 // with, so it can't be lumped into 'root' either.
 const TENANT_PATH_RE = /^\/t\/([^/]+)/;
+// A barber's own installable app lives under their profile. It is a third
+// kind of scope nested inside the salon's: installing "Marcus" and installing
+// his salon are two different apps with separate caches.
+const BARBER_PATH_RE = /^\/t\/([^/]+)\/barbers\/([^/]+)/;
 const ADMIN_PATH_RE = /^\/admin(?:\/|$)/;
 
 /** Service-worker registration scope for the given pathname. Trailing slash matters — it's what stops `/t/acme` from also matching `/t/acme-annex/...`. */
 export function scopeForPathname(pathname: string): string {
+  const barberMatch = pathname.match(BARBER_PATH_RE);
+  if (barberMatch) return `/t/${barberMatch[1]}/barbers/${barberMatch[2]}/`;
   const tenantMatch = pathname.match(TENANT_PATH_RE);
   if (tenantMatch) return `/t/${tenantMatch[1]}/`;
   if (ADMIN_PATH_RE.test(pathname)) return '/admin/';
@@ -31,6 +37,8 @@ export function scopeForPathname(pathname: string): string {
 }
 
 function scopeIdForPathname(pathname: string): string {
+  const barberMatch = pathname.match(BARBER_PATH_RE);
+  if (barberMatch) return `b-${barberMatch[1]}-${barberMatch[2]}`;
   const tenantMatch = pathname.match(TENANT_PATH_RE);
   if (tenantMatch) return `t-${tenantMatch[1]}`;
   if (ADMIN_PATH_RE.test(pathname)) return 'admin';

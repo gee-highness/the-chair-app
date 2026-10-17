@@ -17,6 +17,7 @@ import { Ticket } from '@/components/ui/Ticket';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonLines } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
+import { useConfirm } from '@/components/ui/Confirm';
 import { CURRENCIES, DEFAULT_CURRENCY } from '@/lib/currency';
 import styles from './page.module.css';
 
@@ -53,6 +54,7 @@ export default function TenantDetailPage() {
   const { tenantId } = useParams<{ tenantId: string }>();
   const router = useRouter();
   const toast = useToast();
+  const confirm = useConfirm();
 
   const [tenant, setTenant] = useState<Tenant | null>(null);
   const [stats, setStats] = useState<Stats | null>(null);
@@ -110,7 +112,7 @@ export default function TenantDetailPage() {
   const toggleStatus = async () => {
     if (!tenant) return;
     const next = tenant.status === 'active' ? 'suspended' : 'active';
-    if (next === 'suspended' && !confirm(`Suspend ${tenant.name}? Staff and customers won't be able to sign in or book until it's reactivated.`)) return;
+    if (next === 'suspended' && !(await confirm(`Suspend ${tenant.name}? Staff and customers won't be able to sign in or book until it's reactivated.`))) return;
     setStatusBusy(true);
     try {
       const res = await fetch(`/api/platform/tenants/${tenantId}`, {
@@ -132,7 +134,7 @@ export default function TenantDetailPage() {
 
   const handleDelete = async () => {
     if (!tenant) return;
-    if (!confirm(`Permanently delete ${tenant.name} and everything in it? This cannot be undone.`)) return;
+    if (!(await confirm(`Permanently delete ${tenant.name} and everything in it? This cannot be undone.`))) return;
     setDeleting(true);
     try {
       const res = await fetch(`/api/platform/tenants/${tenantId}`, {

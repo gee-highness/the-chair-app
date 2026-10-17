@@ -24,10 +24,10 @@ const hex = (h: string): RGB => {
   return rgb(((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255);
 };
 export const COLOR = {
-  ink: hex('#14231c'), soft: hex('#3d4d43'), faint: hex('#5f6f65'), paper: hex('#f7f8f2'), line: hex('#c9c2ac'),
-  pine: hex('#1f3b2e'), brass: hex('#b8873b'), brassS: hex('#96692a'), brassBg: hex('#f6ecd6'),
-  rust: hex('#a23e32'), rustBg: hex('#f7e6e3'), moss: hex('#4c6b4f'), mossBg: hex('#e6eee6'), white: rgb(1, 1, 1),
-  sand: hex('#e9d9b8'), mist: hex('#dfe6d8'),
+  ink: hex('#14202b'), soft: hex('#435262'), faint: hex('#627080'), paper: hex('#f7f3ec'), line: hex('#e0d8c8'),
+  pine: hex('#0f2236'), brass: hex('#b4521f'), brassS: hex('#8f3f15'), brassBg: hex('#f6dfcf'),
+  rust: hex('#b3263a'), rustBg: hex('#fde8ea'), moss: hex('#2f7d5b'), mossBg: hex('#dcf1e6'), white: rgb(1, 1, 1),
+  sand: hex('#f6dfcf'), mist: hex('#eee8dc'),
 };
 
 // ---------------------------------------------------------------- text safety

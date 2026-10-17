@@ -1,0 +1,42 @@
+/* src/styles/display.css
+ *
+ * Reader preferences set by components/DisplayMenu.tsx as data attributes on
+ * <html>. Theme itself is handled by [data-theme] in tokens.css; these rules
+ * cover text size, contrast and motion. All sizes in the app are rem-based,
+ * so scaling the root scales everything.
+ */
+html[data-text='large'] { font-size: 112.5%; }
+html[data-text='xl'] { font-size: 125%; }
+
+html[data-contrast='high'] {
+  --ink-soft: var(--ink);
+  --ink-faint: var(--ink-soft);
+  --line: var(--line-strong);
+}
+html[data-contrast='high'] a { text-decoration-thickness: 2px; }
+
+html[data-motion='reduced'] *,
+html[data-motion='reduced'] *::before,
+html[data-motion='reduced'] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Keyboard users: first Tab reveals a link past the navigation. */
+.skip-link {
+  position: absolute;
+  left: var(--space-3);
+  top: -100px;
+  z-index: 1000;
+  padding: var(--space-3) var(--space-4);
+  background: var(--brass);
+  color: var(--on-brass);
+  border-radius: var(--radius-control);
+  font-weight: 700;
+  text-decoration: none;
+}
+.skip-link:focus {
+  top: var(--space-3);
+}

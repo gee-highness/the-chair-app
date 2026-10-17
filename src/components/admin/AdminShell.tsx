@@ -10,8 +10,9 @@ import { ReactElement, ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { dynamicCacheNameForPathname } from '@/lib/pwaScope';
-import { OverviewIcon, AnalyticsIcon, LogoutIcon, PublicPageIcon } from '@/components/dashboard/NavIcons';
+import { OverviewIcon, AnalyticsIcon, LogoutIcon, PublicPageIcon, GuideIcon } from '@/components/dashboard/NavIcons';
 import { TenantsIcon, StaffDirectoryIcon, ModerationIcon, AdminsIcon, AuditLogIcon, SecurityIcon } from './AdminIcons';
+import { LogoMark } from '@/components/Logo';
 import styles from './AdminShell.module.css';
 
 interface NavItem {
@@ -29,6 +30,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/admins', label: 'Admins', icon: AdminsIcon },
   { href: '/audit-log', label: 'Audit log', icon: AuditLogIcon },
   { href: '/security', label: 'Security', icon: SecurityIcon },
+  { href: '/guide', label: 'Guide', icon: GuideIcon },
 ];
 
 export function AdminShell({ adminName, children }: { adminName: string; children: ReactNode }) {
@@ -49,9 +51,7 @@ export function AdminShell({ adminName, children }: { adminName: string; childre
     <div className={styles.shell}>
       <nav className={styles.sidebar} aria-label="Admin navigation">
         <div className={styles.brand}>
-          <span className={styles.brandTicket} aria-hidden="true">
-            #
-          </span>
+          <LogoMark size={36} />
           <div className={styles.brandText}>
             <p className={styles.brandName}>The Chair App</p>
             <p className={styles.brandRole}>{adminName}</p>
@@ -80,7 +80,7 @@ export function AdminShell({ adminName, children }: { adminName: string; childre
         <div className={styles.sidebarFooter}>
           <Link href="/" className={styles.navLink} title="View public site">
             <PublicPageIcon className={styles.navIcon} />
-            <span className={styles.navLabel}>View public site</span>
+            <span className={styles.navLabel}>Public</span>
           </Link>
           <button className={[styles.navLink, styles.logout].join(' ')} onClick={handleLogout} title="Log out">
             <LogoutIcon className={styles.navIcon} />
@@ -89,7 +89,7 @@ export function AdminShell({ adminName, children }: { adminName: string; childre
         </div>
       </nav>
 
-      <main className={styles.main}>{children}</main>
+      <main id="main-content" tabIndex={-1} className={styles.main}>{children}</main>
     </div>
   );
 }

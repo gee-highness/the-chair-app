@@ -5,6 +5,7 @@
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useDeferredMount } from '@/hooks/useDeferredMount';
 
 const markerIcon = L.icon({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
@@ -15,6 +16,8 @@ const markerIcon = L.icon({
 });
 
 export default function SalonMapView({ lat, lng }: { lat: number; lng: number }) {
+  const ready = useDeferredMount();
+  if (!ready) return <div style={{ height: '240px' }} aria-hidden="true" />;
   return (
     <MapContainer
       center={[lat, lng]}

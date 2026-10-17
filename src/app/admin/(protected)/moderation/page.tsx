@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonLines } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
+import { useConfirm } from '@/components/ui/Confirm';
 import styles from './page.module.css';
 
 interface ReviewRow {
@@ -27,6 +28,7 @@ interface ReviewRow {
 
 export default function ModerationPage() {
   const toast = useToast();
+  const confirm = useConfirm();
   const [filter, setFilter] = useState<'flagged' | 'all' | 'visible'>('flagged');
   const [reviews, setReviews] = useState<ReviewRow[] | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -62,7 +64,7 @@ export default function ModerationPage() {
   };
 
   const remove = async (r: ReviewRow) => {
-    if (!confirm('Delete this review permanently?')) return;
+    if (!(await confirm('Delete this review permanently?'))) return;
     setBusyId(r._id);
     try {
       const res = await fetch(`/api/platform/moderation/reviews?id=${r._id}`, { method: 'DELETE' });

@@ -8,6 +8,7 @@ import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonLines } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
+import { useConfirm } from '@/components/ui/Confirm';
 import { useRole } from '@/hooks/useRole';
 import { useCurrency } from '@/hooks/useCurrency';
 import { formatPrice, currencySymbol } from '@/lib/currency';
@@ -43,6 +44,7 @@ export default function ServicesPage() {
   const role = useRole();
   const allowed = role === 'admin';
   const toast = useToast();
+  const confirm = useConfirm();
   const currency = useCurrency();
   const [categories, setCategories] = useState<Category[] | null>(null);
   const [services, setServices] = useState<Service[] | null>(null);
@@ -102,7 +104,7 @@ export default function ServicesPage() {
     }
   };
   const deleteCategory = async (c: Category) => {
-    if (!confirm(`Delete category "${c.name}"?`)) return;
+    if (!(await confirm(`Delete category "${c.name}"?`))) return;
     const res = await fetch(`/api/categories?id=${c._id}`, { method: 'DELETE' });
     const data = await res.json();
     if (res.ok) {
@@ -161,7 +163,7 @@ export default function ServicesPage() {
     }
   };
   const deleteService = async (s: Service) => {
-    if (!confirm(`Delete service "${s.name}"?`)) return;
+    if (!(await confirm(`Delete service "${s.name}"?`))) return;
     const res = await fetch(`/api/services?id=${s._id}`, { method: 'DELETE' });
     const data = await res.json();
     if (res.ok) {

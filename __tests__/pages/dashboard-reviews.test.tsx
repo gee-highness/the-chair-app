@@ -3,7 +3,7 @@ import { describe, it, expect, afterEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithRole } from '../helpers/testProviders';
-import { mockFetch } from '../helpers/fetchMock';
+import { mockFetch, bodyOf } from '../helpers/fetchMock';
 import ReviewsPage from '@/app/t/[tenantSlug]/dashboard/reviews/page';
 
 const originalFetch = global.fetch;
@@ -60,7 +60,7 @@ describe('Reviews dashboard page', () => {
     await waitFor(() => {
       const putCall = fetchMock.mock.calls.find((c: any) => c[1]?.method === 'PUT');
       expect(putCall).toBeTruthy();
-      expect(JSON.parse(putCall![1].body)).toEqual({ _id: 'r1', status: 'flagged' });
+      expect(bodyOf(putCall!)).toEqual({ _id: 'r1', status: 'flagged' });
     });
     await waitFor(() => expect(screen.getByRole('button', { name: 'Unflag' })).toBeInTheDocument());
   });

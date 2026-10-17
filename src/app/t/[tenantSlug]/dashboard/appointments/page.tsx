@@ -8,6 +8,7 @@ import { useToast } from '@/components/ui/Toast';
 import { useOptionalRole } from '@/hooks/useRole';
 import { useCurrency } from '@/hooks/useCurrency';
 import { formatPrice } from '@/lib/currency';
+import { downloadCsv, toCsv } from '@/lib/csv';
 import styles from './page.module.css';
 
 interface Appointment {
@@ -28,8 +29,10 @@ const STATUS_OPTIONS = ['pending', 'confirmed', 'completed', 'cancelled'];
 // can't reopen one; the server enforces the same list (api/appointments PUT).
 const BARBER_STATUS_OPTIONS = ['confirmed', 'completed', 'cancelled'];
 
+// Local calendar date: an evening booking must stay on the day it happens.
 function isoDate(d: Date) {
-  return d.toISOString().slice(0, 10);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
 export default function AppointmentsBoard() {
@@ -52,6 +55,21 @@ export default function AppointmentsBoard() {
       return matchesDate && matchesStatus;
     });
   }, [appointments, dateFilter, statusFilter]);
+
+  const exportCsv = () => {
+    const csv = toCsv(filtered, [
+      { header: 'Date', value: (a) => new Date(a.dateTime).toLocaleDateString() },
+      { header: 'Time', value: (a) => new Date(a.dateTime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) },
+      { header: 'Customer', value: (a) => a.customerName },
+      { header: 'Phone', value: (a) => a.customerPhone },
+      { header: 'Service', value: (a) => a.serviceName },
+      { header: 'Barber', value: (a) => a.barberName },
+      { header: 'Price', value: (a) => a.servicePrice },
+      { header: 'Status', value: (a) => a.status },
+      { header: 'Notes', value: (a) => a.notes },
+    ]);
+    downloadCsv(`appointments-${dateFilter || 'all'}.csv`, csv);
+  };
 
   const updateStatus = async (id: string, status: string) => {
     const res = await fetch('/api/appointments', {
@@ -91,6 +109,12 @@ export default function AppointmentsBoard() {
               </option>
             ))}
           </select>
+          <button className={styles.clearDate} onClick={exportCsv} disabled={filtered.length === 0}>
+            Export CSV
+          </button>
+          <button className={styles.clearDate} onClick={() => window.print()}>
+            Print
+          </button>
         </div>
       </div>
 
@@ -113,7 +137,7 @@ export default function AppointmentsBoard() {
                   {a.serviceName || 'Service'} {a.source === 'walk-in' && <span className={styles.walkIn}>walk-in</span>}
                 </p>
                 <p className={styles.meta}>
-                  {a.customerName || 'Customer'} · with {a.barberName || 'barber'} · <span className={styles.mono}>{a.servicePrice != null ? formatPrice(a.servicePrice, currency) : '—'}</span>
+                  {a.customerName || 'Customer'}{a.customerPhone && <> · <a href={`tel:${a.customerPhone.replace(/\s+/g, '')}`}>{a.customerPhone}</a></>} · with {a.barberName || 'barber'} · <span className={styles.mono}>{a.servicePrice != null ? formatPrice(a.servicePrice, currency) : '—'}</span>
                 </p>
                 {a.notes && <p className={styles.notes}>{a.notes}</p>}
               </div>

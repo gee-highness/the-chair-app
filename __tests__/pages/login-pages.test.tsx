@@ -2,7 +2,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { mockFetch } from '../helpers/fetchMock';
+import { mockFetch, bodyOf } from '../helpers/fetchMock';
 
 const router = vi.hoisted(() => ({ push: vi.fn(), refresh: vi.fn() }));
 
@@ -49,7 +49,7 @@ describe('Salon sign-in page (everyone signs in here the same way)', () => {
     await signIn('admin@demo.test', 'pw-12345');
 
     await waitFor(() => expect(router.push).toHaveBeenCalledWith('/t/demo/dashboard'));
-    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({ email: 'admin@demo.test', password: 'pw-12345', tenantSlug: 'demo' });
+    expect(bodyOf(fetchMock.mock.calls[0])).toEqual({ email: 'admin@demo.test', password: 'pw-12345', tenantSlug: 'demo' });
   });
 
   it('customer: goes back to ?next= when it is a same-site path', async () => {
@@ -90,7 +90,7 @@ describe('Salon sign-in page (everyone signs in here the same way)', () => {
     await signIn('marcus@x.test', 'pw-12345');
     await userEvent.click(await screen.findByRole('button', { name: /Demo Salon \(Barber\)/ }));
     await waitFor(() => expect(router.push).toHaveBeenCalledWith('/t/demo/dashboard'));
-    expect(JSON.parse(fetchMock.mock.calls[1][1].body).tenantSlug).toBe('demo');
+    expect(bodyOf(fetchMock.mock.calls[1]).tenantSlug).toBe('demo');
   });
 });
 
@@ -105,7 +105,7 @@ describe('The Chair App sign-in page', () => {
     render(<PlatformLoginPage />);
     await signIn('jamie@example.test', 'pw-12345');
     await waitFor(() => expect(router.push).toHaveBeenCalledWith('/'));
-    expect(JSON.parse(fetchMock.mock.calls[0][1].body).tenantSlug).toBeUndefined();
+    expect(bodyOf(fetchMock.mock.calls[0]).tenantSlug).toBeUndefined();
   });
 });
 
@@ -125,7 +125,7 @@ describe('Admin (platform) login page', () => {
 
     await waitFor(() => expect(router.push).toHaveBeenCalledWith('/admin'));
     expect(fetchMock.mock.calls[0][0]).toBe('/api/admin/login');
-    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({ email: 'super@chairapp.test', password: 'pw123' });
+    expect(bodyOf(fetchMock.mock.calls[0])).toEqual({ email: 'super@chairapp.test', password: 'pw123' });
   });
 
   it('a failed login shows the error message', async () => {

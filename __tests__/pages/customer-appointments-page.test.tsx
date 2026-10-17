@@ -1,8 +1,9 @@
 // __tests__/pages/customer-appointments-page.test.tsx
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { mockFetch } from '../helpers/fetchMock';
+import { renderWithToast } from '../helpers/testProviders';
+import { mockFetch, bodyOf } from '../helpers/fetchMock';
 
 vi.mock('next/navigation', () => ({
   useParams: () => ({ tenantSlug: 'demo' }),
@@ -19,7 +20,7 @@ describe('Customer My Appointments page', () => {
 
   it('shows a sign-in prompt when signed out, and opens the modal on click', async () => {
     mockFetch({ '/api/customer-auth/me': () => ({ status: 401, json: {} }) });
-    render(<AppointmentsPage />);
+    renderWithToast(<AppointmentsPage />);
     await waitFor(() => expect(screen.getByText('Sign in to see your appointments')).toBeInTheDocument());
     await userEvent.click(screen.getByRole('button', { name: 'Sign in' }));
     expect(screen.getByRole('dialog', { name: 'Sign in' })).toBeInTheDocument();
@@ -40,7 +41,7 @@ describe('Customer My Appointments page', () => {
         },
       }),
     });
-    render(<AppointmentsPage />);
+    renderWithToast(<AppointmentsPage />);
     await waitFor(() => expect(screen.getByText('Fade')).toBeInTheDocument());
     expect(screen.getByText('Beard Trim')).toBeInTheDocument();
     expect(screen.getByText('25')).toBeInTheDocument();
@@ -52,7 +53,7 @@ describe('Customer My Appointments page', () => {
       '/api/customer-auth/me': () => ({ json: { customerId: 'c1', name: 'Jamie', email: 'j@example.test' } }),
       '/api/t/demo/my-appointments': () => ({ json: { appointments: [], loyaltyPoints: 0 } }),
     });
-    render(<AppointmentsPage />);
+    renderWithToast(<AppointmentsPage />);
     await waitFor(() => expect(screen.getByText('Nothing upcoming')).toBeInTheDocument());
     expect(screen.getByText('No past appointments yet')).toBeInTheDocument();
   });
@@ -66,7 +67,7 @@ describe('Customer My Appointments page', () => {
       }),
       '/api/reviews': () => ({ json: { message: 'ok' } }),
     });
-    render(<AppointmentsPage />);
+    renderWithToast(<AppointmentsPage />);
     await waitFor(() => expect(screen.getByRole('button', { name: 'Leave a review' })).toBeInTheDocument());
 
     await userEvent.click(screen.getByRole('button', { name: 'Leave a review' }));
@@ -76,7 +77,7 @@ describe('Customer My Appointments page', () => {
 
     await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Leave a review' })).not.toBeInTheDocument());
     const postCall = fetchMock.mock.calls.find((c: any) => c[0].includes('/api/reviews'));
-    const body = JSON.parse(postCall![1].body);
+    const body = bodyOf(postCall!);
     expect(body).toEqual({ appointmentId: 'a2', rating: 5, text: 'Great cut!' });
     expect(screen.queryByRole('button', { name: 'Leave a review' })).not.toBeInTheDocument();
   });
@@ -90,7 +91,7 @@ describe('Customer My Appointments page', () => {
       }),
       '/api/reviews': () => ({ json: { message: 'ok' } }),
     });
-    render(<AppointmentsPage />);
+    renderWithToast(<AppointmentsPage />);
     await waitFor(() => expect(screen.getByRole('button', { name: 'Leave a review' })).toBeInTheDocument());
     await userEvent.click(screen.getByRole('button', { name: 'Leave a review' }));
 
@@ -100,7 +101,7 @@ describe('Customer My Appointments page', () => {
 
     await waitFor(() => {
       const postCall = fetchMock.mock.calls.find((c: any) => c[0].includes('/api/reviews'));
-      const body = JSON.parse(postCall![1].body);
+      const body = bodyOf(postCall!);
       expect(body.rating).toBe(3);
     });
   });
@@ -114,12 +115,63 @@ describe('Customer My Appointments page', () => {
       }),
       '/api/reviews': () => ({ status: 409, json: { message: 'You already reviewed this appointment' } }),
     });
-    render(<AppointmentsPage />);
+    renderWithToast(<AppointmentsPage />);
     await waitFor(() => expect(screen.getByRole('button', { name: 'Leave a review' })).toBeInTheDocument());
     await userEvent.click(screen.getByRole('button', { name: 'Leave a review' }));
     await userEvent.click(screen.getByRole('button', { name: 'Submit review' }));
 
     await waitFor(() => expect(screen.getByText('You already reviewed this appointment')).toBeInTheDocument());
     expect(screen.getByRole('dialog', { name: 'Leave a review' })).toBeInTheDocument(); // still open
+  });
+
+  describe('cancelling an upcoming booking', () => {
+    const future = () => new Date(Date.now() + 86400_000).toISOString();
+    const signedIn = { '/api/customer-auth/me': () => ({ json: { customerId: 'c1', name: 'Jamie', email: 'j@example.test' } }) };
+
+    it('asks first, then sends the cancellation and reloads the list', async () => {
+      vi.spyOn(window, 'confirm').mockReturnValue(true);
+      const patches: any[] = [];
+      let status = 'confirmed';
+      mockFetch({
+        ...signedIn,
+        '/api/t/demo/my-appointments': (_url: string, init?: any) => {
+          if (init?.method === 'PATCH') {
+            patches.push(JSON.parse(init.body));
+            status = 'cancelled';
+            return { json: { ok: true } };
+          }
+          return { json: { appointments: [{ _id: 'a1', dateTime: future(), status, barberName: 'Alex', serviceName: 'Fade' }], loyaltyPoints: 0 } };
+        },
+      });
+      renderWithToast(<AppointmentsPage />);
+      await userEvent.click(await screen.findByRole('button', { name: 'Cancel booking' }));
+      await waitFor(() => expect(patches).toEqual([{ appointmentId: 'a1', action: 'cancel' }]));
+      await waitFor(() => expect(screen.queryByRole('button', { name: 'Cancel booking' })).not.toBeInTheDocument());
+    });
+
+    it('does nothing if the customer keeps the booking', async () => {
+      vi.spyOn(window, 'confirm').mockReturnValue(false);
+      const patches: any[] = [];
+      mockFetch({
+        ...signedIn,
+        '/api/t/demo/my-appointments': (_url: string, init?: any) => {
+          if (init?.method === 'PATCH') patches.push(init.body);
+          return { json: { appointments: [{ _id: 'a1', dateTime: future(), status: 'pending', serviceName: 'Fade', barberName: 'Alex' }], loyaltyPoints: 0 } };
+        },
+      });
+      renderWithToast(<AppointmentsPage />);
+      await userEvent.click(await screen.findByRole('button', { name: 'Cancel booking' }));
+      expect(patches).toHaveLength(0);
+      expect(screen.getByRole('button', { name: 'Cancel booking' })).toBeInTheDocument();
+    });
+
+    it('offers Add to calendar for upcoming bookings', async () => {
+      mockFetch({
+        ...signedIn,
+        '/api/t/demo/my-appointments': () => ({ json: { appointments: [{ _id: 'a1', dateTime: future(), status: 'pending', serviceName: 'Fade', barberName: 'Alex' }], loyaltyPoints: 0 } }),
+      });
+      renderWithToast(<AppointmentsPage />);
+      expect(await screen.findByRole('button', { name: 'Add to calendar' })).toBeInTheDocument();
+    });
   });
 });
