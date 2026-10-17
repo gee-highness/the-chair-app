@@ -11,7 +11,7 @@ import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { SkeletonLines } from '@/components/ui/Skeleton';
+import { Skeleton, SkeletonLines } from '@/components/ui/Skeleton';
 import { CustomerSignInModal } from '@/components/CustomerSignInModal';
 import { SocialFeed } from '@/components/SocialFeed';
 import { useCustomerAuth } from '@/hooks/useCustomerAuth';
@@ -25,11 +25,55 @@ interface TenantResult {
   _id: string;
   name: string;
   slug: string;
+  currency?: string;
+  logoUrl?: string | null;
+  tagline?: string | null;
+  averageRating?: number | null;
+  reviewCount?: number;
+  minPrice?: number | null;
   branding?: { primaryColor: string };
   distanceKm?: number | null;
   lat?: number | null;
   lng?: number | null;
   barbers?: { _id: string; name: string; slug: string; imageUrl?: string }[];
+}
+
+interface BarberResult {
+  _id: string;
+  name: string;
+  slug: string;
+  imageUrl?: string | null;
+  tags: string[];
+  tenantName: string;
+  tenantSlug: string;
+  distanceKm?: number | null;
+  averageRating?: number | null;
+  reviewCount: number;
+  followerCount: number;
+}
+
+type SortKey = 'best' | 'nearest' | 'rating';
+
+const QUICK_PICKS = ['Haircut', 'Fade', 'Beard', 'Braids', 'Kids', 'Shave'];
+
+function Stars({ rating, count }: { rating?: number | null; count?: number }) {
+  if (!rating || !count) return <span className={styles.newBadge}>New</span>;
+  return (
+    <span className={styles.rating} aria-label={`Rated ${rating.toFixed(1)} out of 5 from ${count} reviews`}>
+      <span aria-hidden="true">★</span> {rating.toFixed(1)} <span className={styles.ratingCount}>({count})</span>
+    </span>
+  );
+}
+
+function Avatar({ src, name, size = 44, tint }: { src?: string | null; name: string; size?: number; tint?: string }) {
+  return src ? (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={src} alt="" className={styles.avatar} style={{ width: size, height: size }} />
+  ) : (
+    <span className={styles.avatarFallback} style={{ width: size, height: size, background: tint || undefined }} aria-hidden="true">
+      {name.charAt(0).toUpperCase()}
+    </span>
+  );
 }
 
 interface ServiceResult {
@@ -48,13 +92,19 @@ export default function Home() {
   const [query, setQuery] = useState('');
   const [tenants, setTenants] = useState<TenantResult[]>([]);
   const [services, setServices] = useState<ServiceResult[]>([]);
+  const [barbers, setBarbers] = useState<BarberResult[]>([]);
+  const [sort, setSort] = useState<SortKey>('best');
+  const [topRatedOnly, setTopRatedOnly] = useState(false);
+  const [lastQuery, setLastQuery] = useState('');
+  const [error, setError] = useState(false);
+  const [geoDenied, setGeoDenied] = useState(false);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [locating, setLocating] = useState(false);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
   const [view, setView] = useState<'discover' | 'feed'>('discover');
-  const [resultsView, setResultsView] = useState<'stylised' | 'map' | 'split'>('split');
+  const [resultsView, setResultsView] = useState<'stylised' | 'map' | 'split'>('stylised');
   const { customer, signInOpen, setSignInOpen, requireSignIn, onSignedIn, signOut } = useCustomerAuth();
   const { staff, clearStaff } = useStaffSession();
   const staffDashboard = dashboardHref(staff);
@@ -97,12 +147,15 @@ export default function Home() {
     });
   };
 
-  const runSearch = async (overrideCoords?: { lat: number; lng: number } | null) => {
+  const runSearch = async (overrideCoords?: { lat: number; lng: number } | null, overrideQuery?: string) => {
     setLoading(true);
     setSearched(true);
+    setError(false);
     try {
       const useCoords = overrideCoords !== undefined ? overrideCoords : coords;
-      const params = new URLSearchParams({ q: query });
+      const q = overrideQuery !== undefined ? overrideQuery : query;
+      setLastQuery(q.trim());
+      const params = new URLSearchParams({ q });
       if (useCoords) {
         params.set('lat', String(useCoords.lat));
         params.set('lng', String(useCoords.lng));
@@ -112,7 +165,12 @@ export default function Home() {
         const data = await res.json();
         setTenants(data.tenants || []);
         setServices(data.services || []);
+        setBarbers(data.barbers || []);
+      } else {
+        setError(true);
       }
+    } catch {
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -133,9 +191,35 @@ export default function Home() {
         setLocating(false);
         runSearch(next);
       },
-      () => setLocating(false)
+      () => {
+        setLocating(false);
+        setGeoDenied(true);
+      }
     );
   };
+
+  const pickQuick = (term: string) => {
+    setQuery(term);
+    runSearch(undefined, term);
+  };
+
+  const clearSearch = () => {
+    setQuery('');
+    setCoords(null);
+    setSort('best');
+    setTopRatedOnly(false);
+    runSearch(null, '');
+  };
+
+  const visibleTenants = tenants
+    .filter((t) => !topRatedOnly || (t.averageRating != null && t.averageRating >= 4))
+    .slice()
+    .sort((a, b) => {
+      if (sort === 'rating') return (b.averageRating ?? 0) - (a.averageRating ?? 0) || (b.reviewCount ?? 0) - (a.reviewCount ?? 0);
+      if (sort === 'nearest') return (a.distanceKm ?? Infinity) - (b.distanceKm ?? Infinity);
+      return 0;
+    });
+  const hasFilters = Boolean(lastQuery) || coords !== null || topRatedOnly || sort !== 'best';
 
   return (
     <>
@@ -176,10 +260,51 @@ export default function Home() {
       </header>
 
       <main className={styles.main}>
-      <h1 className={styles.title}>The Chair App</h1>
-      <p className={styles.subtitle}>Discover and book appointments at top salons and barbershops</p>
+      <section className={styles.hero}>
+        <p className={styles.eyebrow}>Salons &amp; barbershops</p>
+        <h1 className={styles.title}>Find your chair.</h1>
+        <p className={styles.subtitle}>
+          Discover top barbers near you, see their work and book in a minute. Follow a barber and install their app.
+        </p>
 
-      <div className={styles.viewSwitch}>
+        <form onSubmit={handleSearch} className={styles.searchForm} role="search">
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search salons, barbers or services…"
+            className={styles.searchInput}
+            aria-label="Search"
+          />
+          <Button type="submit" loading={loading}>
+            Search
+          </Button>
+          <Button type="button" variant="secondary" loading={locating} onClick={useNearMe}>
+            Near me
+          </Button>
+        </form>
+
+        <div className={styles.chips} role="group" aria-label="Popular searches">
+          {QUICK_PICKS.map((term) => (
+            <button
+              key={term}
+              type="button"
+              className={[styles.chip, lastQuery.toLowerCase() === term.toLowerCase() ? styles.chipActive : ''].join(' ')}
+              aria-pressed={lastQuery.toLowerCase() === term.toLowerCase()}
+              onClick={() => pickQuick(term)}
+            >
+              {term}
+            </button>
+          ))}
+        </div>
+        {geoDenied && !coords && (
+          <p className={styles.nearMeNote} role="status">
+            We couldn&apos;t get your location. Allow location access in your browser, or search by name.
+          </p>
+        )}
+      </section>
+
+      <div className={styles.viewSwitch} role="tablist" aria-label="Discovery sections">
         <Button variant={view === 'discover' ? 'primary' : 'secondary'} size="sm" onClick={() => setView('discover')}>
           Discover salons
         </Button>
@@ -192,109 +317,187 @@ export default function Home() {
 
       {view === 'discover' && (
       <>
-      <form onSubmit={handleSearch} className={styles.searchForm}>
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search salons or services…"
-          className={styles.searchInput}
-          aria-label="Search"
-        />
-        <Button type="submit" loading={loading}>
-          Search
-        </Button>
-        <Button type="button" variant="secondary" loading={locating} onClick={useNearMe}>
-          Near me
-        </Button>
-      </form>
+      <div className={styles.toolbar}>
+        <p className={styles.resultSummary} role="status" aria-live="polite">
+          {loading
+            ? 'Searching…'
+            : searched
+              ? `${tenants.length} ${tenants.length === 1 ? 'salon' : 'salons'} · ${barbers.length} ${barbers.length === 1 ? 'barber' : 'barbers'}${lastQuery ? ` for “${lastQuery}”` : ''}${coords ? ', nearest first' : ''}`
+              : ''}
+        </p>
+        <div className={styles.toolbarControls}>
+          <label className={styles.sortLabel}>
+            Sort
+            <select className={styles.sortSelect} value={sort} onChange={(e) => setSort(e.target.value as SortKey)}>
+              <option value="best">Best match</option>
+              <option value="rating">Top rated</option>
+              <option value="nearest" disabled={!coords}>
+                Nearest{coords ? '' : ' (turn on Near me)'}
+              </option>
+            </select>
+          </label>
+          <button
+            type="button"
+            className={[styles.chip, topRatedOnly ? styles.chipActive : ''].join(' ')}
+            aria-pressed={topRatedOnly}
+            onClick={() => setTopRatedOnly((v) => !v)}
+          >
+            ★ 4+ only
+          </button>
+          {hasFilters && (
+            <button type="button" className={styles.clearButton} onClick={clearSearch}>
+              Clear all
+            </button>
+          )}
+        </div>
+      </div>
 
       {coords && <p className={styles.nearMeNote}>Showing results sorted by distance from you.</p>}
 
       {tenants.length > 0 && (
         <div className={styles.resultsViewSwitch} role="group" aria-label="Results view">
-          <button
-            type="button"
-            className={[styles.resultsViewButton, resultsView === 'stylised' ? styles.resultsViewButtonActive : ''].join(' ')}
-            aria-pressed={resultsView === 'stylised'}
-            onClick={() => setResultsView('stylised')}
-          >
-            Stylised
-          </button>
-          <button
-            type="button"
-            className={[styles.resultsViewButton, resultsView === 'map' ? styles.resultsViewButtonActive : ''].join(' ')}
-            aria-pressed={resultsView === 'map'}
-            onClick={() => setResultsView('map')}
-          >
-            Map
-          </button>
-          <button
-            type="button"
-            className={[styles.resultsViewButton, resultsView === 'split' ? styles.resultsViewButtonActive : ''].join(' ')}
-            aria-pressed={resultsView === 'split'}
-            onClick={() => setResultsView('split')}
-          >
-            Both
-          </button>
+          {([['stylised', 'List'], ['map', 'Map'], ['split', 'Both']] as const).map(([key, label]) => (
+            <button
+              key={key}
+              type="button"
+              className={[styles.resultsViewButton, resultsView === key ? styles.resultsViewButtonActive : ''].join(' ')}
+              aria-pressed={resultsView === key}
+              onClick={() => setResultsView(key)}
+            >
+              {label}
+            </button>
+          ))}
         </div>
       )}
 
       {loading ? (
-        <SkeletonLines count={4} />
+        <div className={styles.skeletonGrid} aria-hidden="true">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className={styles.skeletonCard}>
+              <Skeleton width={44} height={44} radius="50%" />
+              <div style={{ flex: 1 }}>
+                <SkeletonLines count={2} />
+              </div>
+            </div>
+          ))}
+        </div>
       ) : (
         <>
-          {searched && tenants.length === 0 && services.length === 0 && (
-            <EmptyState title="No results" description="Try a different search term." />
+          {error && (
+            <EmptyState
+              title="Couldn't load results"
+              description="Check your connection and try again."
+              action={<Button size="sm" onClick={() => runSearch()}>Try again</Button>}
+            />
           )}
 
-          {tenants.length > 0 && (
-            <section className={styles.section}>
-              <h2 className={styles.sectionTitle}>Salons</h2>
+          {!error && searched && tenants.length === 0 && services.length === 0 && barbers.length === 0 && (
+            <EmptyState
+              title="No results"
+              description="Try a different search term, or clear your filters."
+              action={hasFilters ? <Button size="sm" variant="secondary" onClick={clearSearch}>Clear all</Button> : undefined}
+            />
+          )}
+
+          {barbers.length > 0 && (
+            <section className={styles.section} aria-labelledby="barbers-heading">
+              <h2 id="barbers-heading" className={styles.sectionTitle}>
+                {lastQuery ? 'Barbers' : 'Featured barbers'}
+              </h2>
+              <ul className={styles.barberRail}>
+                {barbers.map((b) => (
+                  <li key={b._id}>
+                    <Link href={`/t/${b.tenantSlug}/barbers/${b.slug}`} className={styles.barberCard}>
+                      <Avatar src={b.imageUrl} name={b.name} size={72} />
+                      <strong className={styles.barberName}>{b.name}</strong>
+                      <span className={styles.barberSalon}>{b.tenantName}</span>
+                      <Stars rating={b.averageRating} count={b.reviewCount} />
+                      {b.tags.length > 0 && <span className={styles.barberTags}>{b.tags.slice(0, 2).join(' · ')}</span>}
+                      {b.distanceKm != null && <span className={styles.distance}>{b.distanceKm.toFixed(1)} km</span>}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {visibleTenants.length > 0 && (
+            <section className={styles.section} aria-labelledby="salons-heading">
+              <h2 id="salons-heading" className={styles.sectionTitle}>Salons</h2>
               <div className={resultsView === 'split' ? styles.splitView : undefined}>
                 {(resultsView === 'map' || resultsView === 'split') && (
-                  tenants.some((t) => t.lat != null && t.lng != null) ? (
+                  visibleTenants.some((t) => t.lat != null && t.lng != null) ? (
                     <div className={styles.mapWrap}>
                       <DiscoveryMap
                         center={coords}
                         height={resultsView === 'split' ? 520 : 420}
-                        pins={tenants
+                        pins={visibleTenants
                           .filter((t) => t.lat != null && t.lng != null)
                           .map((t) => ({ _id: t._id, name: t.name, slug: t.slug, lat: t.lat!, lng: t.lng!, barbers: t.barbers || [] }))}
                       />
                     </div>
                   ) : (
-                    <EmptyState title="No mapped salons" description="None of these salons have a location on file yet. Try the stylised view instead." />
+                    <EmptyState title="No mapped salons" description="None of these salons have a location on file yet. Try the list view instead." />
                   )
                 )}
 
                 {(resultsView === 'stylised' || resultsView === 'split') && (
                   <div className={styles.tenantGrid}>
-                    {tenants.map((t) => (
-                      <div key={t._id} className={styles.tenantCardWrap}>
-                        <Link href={`/t/${t.slug}`} className={styles.tenantCard} style={{ borderLeftColor: t.branding?.primaryColor || 'var(--brass)' }}>
-                          <strong>{t.name}</strong>
-                          {t.distanceKm != null && <span className={styles.distance}>{t.distanceKm.toFixed(1)} km away</span>}
-                        </Link>
-                        <button
-                          className={styles.favoriteButton}
-                          aria-pressed={favoriteIds.has(t._id)}
-                          aria-label={favoriteIds.has(t._id) ? `Remove ${t.name} from favorites` : `Save ${t.name} as favorite`}
-                          onClick={() => toggleFavorite(t._id)}
-                        >
-                          {favoriteIds.has(t._id) ? '♥' : '♡'}
-                        </button>
-                      </div>
-                    ))}
+                    {visibleTenants.map((t) => {
+                      const tint = t.branding?.primaryColor || 'var(--brass)';
+                      return (
+                        <div key={t._id} className={styles.tenantCardWrap}>
+                          <Link href={`/t/${t.slug}`} className={styles.tenantCard} style={{ borderLeftColor: tint }}>
+                            <Avatar src={t.logoUrl} name={t.name} tint={tint} />
+                            <span className={styles.tenantInfo}>
+                              <strong>{t.name}</strong>
+                              {t.tagline && <span className={styles.tagline}>{t.tagline}</span>}
+                              <span className={styles.tenantMeta}>
+                                <Stars rating={t.averageRating} count={t.reviewCount} />
+                                {t.minPrice != null && (
+                                  <span className={styles.mono}>from {formatPrice(t.minPrice, t.currency)}</span>
+                                )}
+                                {t.distanceKm != null && <span className={styles.distance}>{t.distanceKm.toFixed(1)} km away</span>}
+                              </span>
+                              {t.barbers && t.barbers.length > 0 && (
+                                <span className={styles.team}>
+                                  {t.barbers.slice(0, 4).map((b) => (
+                                    <Avatar key={b._id} src={b.imageUrl} name={b.name} size={24} />
+                                  ))}
+                                  <span className={styles.teamCount}>
+                                    {t.barbers.length} {t.barbers.length === 1 ? 'barber' : 'barbers'}
+                                  </span>
+                                </span>
+                              )}
+                            </span>
+                          </Link>
+                          <button
+                            className={styles.favoriteButton}
+                            aria-pressed={favoriteIds.has(t._id)}
+                            aria-label={favoriteIds.has(t._id) ? `Remove ${t.name} from favorites` : `Save ${t.name} as favorite`}
+                            onClick={() => toggleFavorite(t._id)}
+                          >
+                            {favoriteIds.has(t._id) ? '♥' : '♡'}
+                          </button>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
             </section>
           )}
 
+          {!error && searched && tenants.length > 0 && visibleTenants.length === 0 && (
+            <EmptyState
+              title="No salons match these filters"
+              action={<Button size="sm" variant="secondary" onClick={() => setTopRatedOnly(false)}>Show all salons</Button>}
+            />
+          )}
+
           {services.length > 0 && (
-            <section className={styles.section}>
-              <h2 className={styles.sectionTitle}>Services</h2>
+            <section className={styles.section} aria-labelledby="services-heading">
+              <h2 id="services-heading" className={styles.sectionTitle}>Services</h2>
               <div className={styles.serviceGrid}>
                 {services.map((s) => (
                   <Link key={s._id} href={`/t/${s.tenantSlug}`} className={styles.serviceCard}>

@@ -1,0 +1,17 @@
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.hint {
+  flex-basis: 100%;
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  background: var(--paper-sunken);
+  border-left: 3px solid var(--brass);
+  border-radius: var(--radius-ticket);
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+}

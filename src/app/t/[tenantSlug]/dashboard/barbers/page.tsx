@@ -12,6 +12,8 @@ import { SkeletonLines } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
 import { useConfirm } from '@/components/ui/Confirm';
 import { useRole } from '@/hooks/useRole';
+import { BarberAppModal } from '@/components/dashboard/BarberAppModal';
+import { useParams } from 'next/navigation';
 import { AvailabilityEditor, DailyAvailability } from '@/components/dashboard/AvailabilityEditor';
 import styles from './page.module.css';
 
@@ -44,6 +46,8 @@ export default function BarbersPage() {
   const role = useRole();
   const allowed = role === 'admin';
   const toast = useToast();
+  const { tenantSlug } = useParams<{ tenantSlug: string }>();
+  const [appFor, setAppFor] = useState<Barber | null>(null);
   const confirm = useConfirm();
   const [barbers, setBarbers] = useState<Barber[] | null>(null);
   const [modal, setModal] = useState<{ open: boolean; editing?: Barber }>({ open: false });
@@ -153,6 +157,9 @@ export default function BarbersPage() {
                   {(b.dailyAvailability || []).length} day{(b.dailyAvailability || []).length === 1 ? '' : 's'} scheduled
                 </p>
                 <div className={styles.rowActions}>
+                  <button className={styles.textButton} onClick={() => setAppFor(b)}>
+                    App link
+                  </button>
                   <button className={styles.textButton} onClick={() => openEdit(b)}>
                     Edit
                   </button>
@@ -195,6 +202,12 @@ export default function BarbersPage() {
           Save barber
         </Button>
       </Modal>
+      <BarberAppModal
+        open={appFor !== null}
+        onClose={() => setAppFor(null)}
+        barberName={appFor?.name || ''}
+        path={appFor ? `/t/${tenantSlug}/barbers/${appFor.slug}` : ''}
+      />
     </div>
   );
 }

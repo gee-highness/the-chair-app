@@ -39,6 +39,7 @@ interface Service {
 interface Barber {
   _id: string;
   name: string;
+  slug?: string;
   imageUrl?: string;
   bio?: string;
   tags?: string[];
@@ -49,7 +50,7 @@ function isoDate(d: Date) {
 }
 
 export default function BookPage() {
-  const { tenantSlug } = useParams<{ tenantSlug: string }>();
+  const { tenantSlug, barberSlug } = useParams<{ tenantSlug: string; barberSlug?: string }>();
   const toast = useToast();
 
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
@@ -88,7 +89,10 @@ export default function BookPage() {
           const params = new URLSearchParams(window.location.search);
           const wantedBarber = params.get('barber');
           const wantedService = params.get('service');
-          const barberMatch = wantedBarber ? fetchedBarbers.find((b) => b._id === wantedBarber) : undefined;
+          // Under /barbers/<slug>/book the barber comes from the path.
+          const barberMatch = barberSlug
+            ? fetchedBarbers.find((b) => b.slug === barberSlug)
+            : wantedBarber ? fetchedBarbers.find((b) => b._id === wantedBarber) : undefined;
           const serviceMatch = wantedService ? fetchedServices.find((s) => s._id === wantedService) : undefined;
           // A URL can name both (e.g. a barber's own page linking straight
           // to "book with me"), but if that service restricts who can
@@ -106,7 +110,7 @@ export default function BookPage() {
         }
       })
       .finally(() => setLoading(false));
-  }, [tenantSlug]);
+  }, [tenantSlug, barberSlug]);
 
   // A signed-in customer shouldn't have to retype who they are.
   useEffect(() => {

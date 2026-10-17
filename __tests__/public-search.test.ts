@@ -110,4 +110,44 @@ describe('GET /api/public/search', () => {
     expect(body.tenants).toHaveLength(1);
     expect(body.tenants[0].name).toBe('Fade Factory');
   });
+
+  describe('card enrichment and barber results', () => {
+    let barberTop: ObjectId, barberNew: ObjectId;
+    beforeEach(() => {
+      const db = fakeDb.db as FakeDb;
+      barberTop = new ObjectId();
+      barberNew = new ObjectId();
+      db.collection('barbers').seed([
+        { _id: barberTop, tenantId: tenantA, name: 'Marcus Cole', slug: 'marcus', tags: ['Fades', 'Beards'] },
+        { _id: barberNew, tenantId: tenantA, name: 'Lee Park', slug: 'lee', tags: ['Braids'] },
+        { _id: new ObjectId(), tenantId: tenantSuspended, name: 'Ghost Barber', slug: 'ghost', tags: [] },
+      ]);
+      db.collection('reviews').seed([
+        { _id: new ObjectId(), tenantId: tenantA, barberId: barberTop, rating: 5, status: 'visible' },
+        { _id: new ObjectId(), tenantId: tenantA, barberId: barberTop, rating: 4, status: 'visible' },
+        { _id: new ObjectId(), tenantId: tenantA, barberId: barberNew, rating: 1, status: 'hidden' },
+      ]);
+    });
+
+    it('adds rating, review count and price-from to each salon', async () => {
+      const { GET } = await import('@/app/api/public/search/route');
+      const body = await (await GET(req('?q='))).json();
+      expect(body.tenants[0]).toMatchObject({ averageRating: 4.5, reviewCount: 2, minPrice: 30 });
+    });
+
+    it('lists barbers best-rated first, with their salon, and never from suspended salons', async () => {
+      const { GET } = await import('@/app/api/public/search/route');
+      const body = await (await GET(req('?q='))).json();
+      expect(body.barbers.map((b: any) => b.slug)).toEqual(['marcus', 'lee']);
+      expect(body.barbers[0]).toMatchObject({ tenantSlug: 'fade-factory', averageRating: 4.5, reviewCount: 2 });
+    });
+
+    it('matches barbers by name or tag', async () => {
+      const { GET } = await import('@/app/api/public/search/route');
+      const byTag = await (await GET(req('?q=braids'))).json();
+      expect(byTag.barbers.map((b: any) => b.slug)).toEqual(['lee']);
+      const byName = await (await GET(req('?q=marcus'))).json();
+      expect(byName.barbers.map((b: any) => b.slug)).toEqual(['marcus']);
+    });
+  });
 });

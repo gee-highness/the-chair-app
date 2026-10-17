@@ -12,10 +12,15 @@
 // same isolation for the same reason: it is its own installed app, not a
 // sub-page of the discovery site it shares an origin with.
 const SCOPE_PATHNAME = new URL(self.registration.scope).pathname;
-const TENANT_MATCH = SCOPE_PATHNAME.match(/^\/t\/([^/]+)\//);
-const IS_ADMIN = !TENANT_MATCH && /^\/admin\//.test(SCOPE_PATHNAME);
-const SCOPE_ID = TENANT_MATCH ? `t-${TENANT_MATCH[1]}` : IS_ADMIN ? 'admin' : 'root';
-const HOME_PATH = TENANT_MATCH ? `/t/${TENANT_MATCH[1]}` : IS_ADMIN ? '/admin' : '/';
+const BARBER_MATCH = SCOPE_PATHNAME.match(/^\/t\/([^/]+)\/barbers\/([^/]+)\//);
+const TENANT_MATCH = !BARBER_MATCH && SCOPE_PATHNAME.match(/^\/t\/([^/]+)\//);
+const IS_ADMIN = !BARBER_MATCH && !TENANT_MATCH && /^\/admin\//.test(SCOPE_PATHNAME);
+const SCOPE_ID = BARBER_MATCH
+  ? `b-${BARBER_MATCH[1]}-${BARBER_MATCH[2]}`
+  : TENANT_MATCH ? `t-${TENANT_MATCH[1]}` : IS_ADMIN ? 'admin' : 'root';
+const HOME_PATH = BARBER_MATCH
+  ? `/t/${BARBER_MATCH[1]}/barbers/${BARBER_MATCH[2]}`
+  : TENANT_MATCH ? `/t/${TENANT_MATCH[1]}` : IS_ADMIN ? '/admin' : '/';
 
 const CACHE_VERSION = `chair-app-v1-${SCOPE_ID}`;
 const STATIC_CACHE = `${CACHE_VERSION}-static`;

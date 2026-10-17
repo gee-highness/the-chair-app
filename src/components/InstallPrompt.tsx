@@ -19,6 +19,7 @@ export function InstallPrompt() {
 
   const dismissKey = `installPromptDismissed:${scopeForPathname(pathname || '/')}`;
   const tenantSlug = pathname?.match(/^\/t\/([^/]+)/)?.[1];
+  const barberSlug = pathname?.match(/^\/t\/[^/]+\/barbers\/([^/]+)/)?.[1];
   const isAdmin = pathname?.startsWith('/admin');
 
   useEffect(() => {
@@ -32,9 +33,13 @@ export function InstallPrompt() {
     }
     fetch(`/api/public/tenants/${tenantSlug}`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((data) => setAppName(data?.tenant?.name))
+      .then((data) => {
+        // Inside a barber's own app, the thing being installed is the barber.
+        const barber = barberSlug ? data?.barbers?.find((b: { slug: string }) => b.slug === barberSlug) : undefined;
+        setAppName(barber?.name || data?.tenant?.name);
+      })
       .catch(() => setAppName(undefined));
-  }, [tenantSlug, isAdmin]);
+  }, [tenantSlug, barberSlug, isAdmin]);
 
   useEffect(() => {
     const handler = (e: Event) => {
