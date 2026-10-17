@@ -27,6 +27,7 @@ import { tenantThemeStyle } from '@/lib/tenantTheme';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ToastProvider } from '@/components/ui/Toast';
 import { useStandalone } from '@/hooks/useStandalone';
+import { useRecordInstall } from '@/hooks/useInstalledApps';
 import { CustomerSignInModal } from '@/components/CustomerSignInModal';
 import { TenantTabBar } from '@/components/TenantTabBar';
 import { useCustomerAuth } from '@/hooks/useCustomerAuth';
@@ -50,6 +51,13 @@ export default function TenantLayout({ children }: { children: React.ReactNode }
   const [tenantInfo, setTenantInfo] = useState<{ name: string; branding?: any; logoUrl?: string } | null>(null);
   const [navOpen, setNavOpen] = useState(false);
   const standalone = useStandalone(); // hooks stay above the early return below
+  // A barber's page is its own installable app (recorded by that page), so only record the salon outside it.
+  const inBarberApp = /^\/t\/[^/]+\/barbers\/[^/]+/.test(pathname || '');
+  useRecordInstall(
+    tenantInfo && !inBarberApp && !pathname?.includes('/dashboard')
+      ? { kind: 'salon', slug: tenantSlug, name: tenantInfo.name, imageUrl: tenantInfo.logoUrl, color: tenantInfo.branding?.primaryColor }
+      : null
+  );
   const { customer, signInOpen, setSignInOpen, onSignedIn } = useCustomerAuth();
 
   useEffect(() => {

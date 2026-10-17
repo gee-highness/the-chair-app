@@ -493,3 +493,36 @@
   min-width: 44px;
   min-height: 44px;
 }
+
+/* ---- Installed apps ---- */
+.installedItem { position: relative; }
+.installedItem .barberCard { padding-top: var(--space-5); }
+
+.installedBadge {
+  display: inline-block;
+  align-self: flex-start;
+  padding: 0 var(--space-2);
+  background: var(--moss-soft);
+  color: var(--moss);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.barberCard .installedBadge { align-self: center; }
+
+.forgetButton {
+  position: absolute;
+  top: var(--space-1);
+  right: var(--space-1);
+  min-width: 32px;
+  min-height: 32px;
+  background: none;
+  border: 0;
+  border-radius: var(--radius-control);
+  color: var(--ink-faint);
+  font-size: 1.125rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.forgetButton:hover { color: var(--ink); background: var(--paper-sunken); }

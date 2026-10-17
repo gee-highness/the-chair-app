@@ -17,6 +17,8 @@ import { CustomerSignInModal } from '@/components/CustomerSignInModal';
 import { SocialFeed } from '@/components/SocialFeed';
 import { useCustomerAuth } from '@/hooks/useCustomerAuth';
 import { useStaffSession, dashboardHref } from '@/hooks/useStaffSession';
+import { useInstalledApps } from '@/hooks/useInstalledApps';
+import { appPath, installedKey } from '@/lib/installedApps';
 import { formatPrice } from '@/lib/currency';
 import styles from './page.module.css';
 
@@ -108,6 +110,8 @@ export default function Home() {
   const [resultsView, setResultsView] = useState<'stylised' | 'map' | 'split'>('stylised');
   const { customer, signInOpen, setSignInOpen, requireSignIn, onSignedIn, signOut } = useCustomerAuth();
   const { staff, clearStaff } = useStaffSession();
+  const { apps: installedApps, forget: forgetInstalled } = useInstalledApps();
+  const installedKeys = new Set(installedApps.map(installedKey));
   const staffDashboard = dashboardHref(staff);
 
   useEffect(() => {
@@ -318,6 +322,32 @@ export default function Home() {
 
       {view === 'discover' && (
       <>
+      {installedApps.length > 0 && (
+        <section className={styles.section} aria-labelledby="installed-heading">
+          <h2 id="installed-heading" className={styles.sectionTitle}>Your apps</h2>
+          <ul className={styles.barberRail}>
+            {installedApps.map((a) => (
+              <li key={installedKey(a)} className={styles.installedItem}>
+                <Link href={appPath(a)} className={styles.barberCard} style={a.color ? { borderTop: `4px solid ${a.color}` } : undefined}>
+                  <Avatar src={a.imageUrl} name={a.name} size={56} tint={a.color} />
+                  <strong className={styles.barberName}>{a.name}</strong>
+                  <span className={styles.installedBadge}>Installed {a.kind === 'barber' ? '· Barber' : '· Salon'}</span>
+                </Link>
+                <button
+                  type="button"
+                  className={styles.forgetButton}
+                  aria-label={`Remove ${a.name} from this list`}
+                  title="Not installed any more? Remove from this list"
+                  onClick={() => forgetInstalled(a)}
+                >
+                  ×
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       <div className={styles.toolbar}>
         <p className={styles.resultSummary} role="status" aria-live="polite">
           {loading
@@ -411,6 +441,7 @@ export default function Home() {
                     <Link href={`/t/${b.tenantSlug}/barbers/${b.slug}`} className={styles.barberCard}>
                       <Avatar src={b.imageUrl} name={b.name} size={72} />
                       <strong className={styles.barberName}>{b.name}</strong>
+                      {installedKeys.has(installedKey({ kind: 'barber', slug: b.tenantSlug, barberSlug: b.slug })) && <span className={styles.installedBadge}>Installed</span>}
                       <span className={styles.barberSalon}>{b.tenantName}</span>
                       <Stars rating={b.averageRating} count={b.reviewCount} />
                       {b.tags.length > 0 && <span className={styles.barberTags}>{b.tags.slice(0, 2).join(' · ')}</span>}
@@ -452,6 +483,7 @@ export default function Home() {
                             <Avatar src={t.logoUrl} name={t.name} tint={tint} />
                             <span className={styles.tenantInfo}>
                               <strong>{t.name}</strong>
+                              {installedKeys.has(installedKey({ kind: 'salon', slug: t.slug })) && <span className={styles.installedBadge}>Installed</span>}
                               {t.tagline && <span className={styles.tagline}>{t.tagline}</span>}
                               <span className={styles.tenantMeta}>
                                 <Stars rating={t.averageRating} count={t.reviewCount} />

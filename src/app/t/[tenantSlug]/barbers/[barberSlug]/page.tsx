@@ -17,6 +17,7 @@ import { CustomerSignInModal } from '@/components/CustomerSignInModal';
 import { SocialFeed } from '@/components/SocialFeed';
 import { FollowButton } from '@/components/FollowButton';
 import { AppActions } from '@/components/AppActions';
+import { useRecordInstall } from '@/hooks/useInstalledApps';
 import { useCustomerAuth } from '@/hooks/useCustomerAuth';
 import styles from './page.module.css';
 
@@ -47,6 +48,8 @@ export default function BarberProfilePage() {
   const [reviews, setReviews] = useState<ReviewItem[]>([]);
   const [photo, setPhoto] = useState<string | null>(null);
   const { signInOpen, setSignInOpen, requireSignIn, onSignedIn } = useCustomerAuth();
+
+  useRecordInstall(barber ? { kind: 'barber', slug: tenantSlug, barberSlug, name: barber.name, imageUrl: barber.imageUrl } : null);
 
   useEffect(() => {
     fetch(`/api/public/tenants/${tenantSlug}`)

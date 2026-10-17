@@ -84,4 +84,62 @@ describe('Discovery homepage', () => {
     await waitFor(() => expect(screen.getByRole('dialog', { name: 'Sign in' })).toBeInTheDocument());
     expect(fetchMock.mock.calls.find((c: any) => c[0].includes('/api/favorites'))).toBeUndefined();
   });
+
+  describe('apps installed on this device', () => {
+    const seed = (apps: any[]) => localStorage.setItem('chair_installed_apps', JSON.stringify(apps));
+    const search = () =>
+      mockFetch({
+        '/api/public/search': () => ({
+          json: {
+            tenants: [{ _id: 't1', name: 'Demo Salon', slug: 'demo' }, { _id: 't2', name: 'Other Salon', slug: 'other' }],
+            services: [],
+            barbers: [{ _id: 'b1', name: 'Alex Rivera', slug: 'alex', tags: [], tenantName: 'Demo Salon', tenantSlug: 'demo', reviewCount: 0, followerCount: 0 }],
+          },
+        }),
+        '/api/customer-auth/me': () => ({ status: 401, json: {} }),
+      });
+    afterEach(() => localStorage.clear());
+
+    it('shows nothing extra when no app has been installed', async () => {
+      search();
+      render(<Home />);
+      await screen.findByText('Other Salon');
+      expect(screen.queryByRole('heading', { name: 'Your apps' })).not.toBeInTheDocument();
+      expect(screen.queryByText('Installed')).not.toBeInTheDocument();
+    });
+
+    it('lists installed salons and barbers under "Your apps", linking to each app', async () => {
+      seed([
+        { kind: 'salon', slug: 'demo', name: 'Demo Salon', at: 2 },
+        { kind: 'barber', slug: 'demo', barberSlug: 'alex', name: 'Alex Rivera', at: 1 },
+      ]);
+      search();
+      render(<Home />);
+      const heading = await screen.findByRole('heading', { name: 'Your apps' });
+      const section = heading.closest('section')!;
+      expect(section.querySelector('a[href="/t/demo"]')).not.toBeNull();
+      expect(section.querySelector('a[href="/t/demo/barbers/alex"]')).not.toBeNull();
+      expect(section).toHaveTextContent('Installed · Salon');
+      expect(section).toHaveTextContent('Installed · Barber');
+    });
+
+    it('badges installed salons and barbers in the results, and only those', async () => {
+      seed([{ kind: 'salon', slug: 'demo', name: 'Demo Salon', at: 1 }, { kind: 'barber', slug: 'demo', barberSlug: 'alex', name: 'Alex Rivera', at: 2 }]);
+      search();
+      render(<Home />);
+      const otherCard = (await screen.findByText('Other Salon')).closest('a')!;
+      expect(otherCard).not.toHaveTextContent('Installed');
+      const demoCard = screen.getAllByText('Demo Salon').map((el) => el.closest('a')).find((a) => a?.getAttribute('href') === '/t/demo' && a.className.includes('tenantCard'))!;
+      expect(demoCard).toHaveTextContent('Installed');
+    });
+
+    it('lets the visitor remove an app they have uninstalled', async () => {
+      seed([{ kind: 'salon', slug: 'demo', name: 'Demo Salon', at: 1 }]);
+      search();
+      render(<Home />);
+      await userEvent.click(await screen.findByRole('button', { name: 'Remove Demo Salon from this list' }));
+      expect(screen.queryByRole('heading', { name: 'Your apps' })).not.toBeInTheDocument();
+      expect(JSON.parse(localStorage.getItem('chair_installed_apps')!)).toEqual([]);
+    });
+  });
 });
