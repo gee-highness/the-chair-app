@@ -2,7 +2,7 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { mockFetch } from '../helpers/fetchMock';
+import { mockFetch, bodyOf } from '../helpers/fetchMock';
 import WaitlistPage from '@/app/t/[tenantSlug]/dashboard/waitlist/page';
 
 const originalFetch = global.fetch;
@@ -58,7 +58,7 @@ describe('Waitlist dashboard page', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Seat now' }));
     await waitFor(() => {
       const putCall = fetchMock.mock.calls.find((c: any) => c[1]?.method === 'PUT');
-      expect(JSON.parse(putCall![1].body)).toEqual({ _id: '1', status: 'confirmed' });
+      expect(bodyOf(putCall!)).toEqual({ _id: '1', status: 'confirmed' });
     });
     await waitFor(() => expect(screen.getByText('Waitlist is empty')).toBeInTheDocument());
   });
@@ -79,7 +79,8 @@ describe('Waitlist dashboard page', () => {
     render(<WaitlistPage />);
     await waitFor(() => expect(screen.getByText('Waitlist is empty')).toBeInTheDocument());
 
-    await userEvent.click(screen.getByRole('button', { name: 'Add walk-in' }));
+    // The page header and the empty state both offer Add walk-in.
+    await userEvent.click(screen.getAllByRole('button', { name: 'Add walk-in' })[0]);
     await userEvent.type(screen.getByLabelText('Customer name'), 'Jamie');
     await userEvent.type(screen.getByLabelText('Email'), 'jamie@example.test');
     await userEvent.type(screen.getByLabelText('Phone'), '555-0100');
@@ -90,7 +91,7 @@ describe('Waitlist dashboard page', () => {
     await waitFor(() => {
       const apptPost = fetchMock.mock.calls.find((c: any) => c[0].includes('/api/appointments') && c[1]?.method === 'POST');
       expect(apptPost).toBeTruthy();
-      const body = JSON.parse(apptPost![1].body);
+      const body = bodyOf(apptPost!);
       expect(body).toEqual({ customerId: 'c1', barberId: 'b1', serviceId: 's1', status: 'waitlist', source: 'walk-in' });
     });
   });

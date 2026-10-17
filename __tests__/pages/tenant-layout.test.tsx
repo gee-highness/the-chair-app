@@ -1,6 +1,6 @@
 // __tests__/pages/tenant-layout.test.tsx
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { mockFetch } from '../helpers/fetchMock';
 
@@ -58,7 +58,7 @@ describe('TenantLayout', () => {
       </TenantLayout>
     );
     await waitFor(() => expect(screen.getByText('Demo Salon')).toBeInTheDocument());
-    expect(screen.getByRole('link', { name: /Book/ })).toHaveAttribute('href', '/t/demo/book');
+    expect(within(screen.getByRole('navigation', { name: 'Main' })).getByRole('link', { name: /Book/ })).toHaveAttribute('href', '/t/demo/book');
     expect(screen.getByRole('link', { name: 'My appointments' })).toHaveAttribute('href', '/t/demo/appointments');
   });
 

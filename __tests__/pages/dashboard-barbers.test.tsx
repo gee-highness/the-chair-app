@@ -3,7 +3,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderWithRole } from '../helpers/testProviders';
-import { mockFetch } from '../helpers/fetchMock';
+import { mockFetch, bodyOf } from '../helpers/fetchMock';
 import BarbersPage from '@/app/t/[tenantSlug]/dashboard/barbers/page';
 
 const originalFetch = global.fetch;
@@ -54,7 +54,7 @@ describe('Barbers dashboard page', () => {
 
     await waitFor(() => expect(screen.getByText('New Barber')).toBeInTheDocument());
     const postCall = fetchMock.mock.calls.find((c: any) => c[1]?.method === 'POST');
-    expect(JSON.parse(postCall![1].body).slug).toBe('new-barber'); // auto-slugified from the name
+    expect(bodyOf(postCall!).slug).toBe('new-barber'); // auto-slugified from the name
   });
 
   it('removing a barber asks for confirmation and, once confirmed, calls DELETE', async () => {

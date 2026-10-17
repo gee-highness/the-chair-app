@@ -1,6 +1,7 @@
 // __tests__/pages/dashboard-customers.test.tsx
 import { describe, it, expect, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
+import { renderWithRole } from '../helpers/testProviders';
 import userEvent from '@testing-library/user-event';
 import { mockFetch } from '../helpers/fetchMock';
 import CustomersPage from '@/app/t/[tenantSlug]/dashboard/customers/page';
@@ -18,7 +19,7 @@ describe('Customers dashboard page', () => {
       '/api/customers': () => ({ json: [] }),
       '/api/tenant/settings': () => ({ json: { tenant: { _id: tenantId } } }),
     });
-    render(<CustomersPage />);
+    renderWithRole(<CustomersPage />, 'admin');
     await waitFor(() => expect(screen.getByText('No customers yet')).toBeInTheDocument());
   });
 
@@ -27,7 +28,7 @@ describe('Customers dashboard page', () => {
       '/api/customers': () => ({ json: [{ _id: 'c1', name: 'Jamie', email: 'jamie@example.test', phone: '555-0100', loyaltyPoints: { [tenantId]: 15 } }] }),
       '/api/tenant/settings': () => ({ json: { tenant: { _id: tenantId } } }),
     });
-    render(<CustomersPage />);
+    renderWithRole(<CustomersPage />, 'admin');
     await waitFor(() => expect(screen.getByText('Jamie')).toBeInTheDocument());
     expect(screen.getByText('15')).toBeInTheDocument();
   });
@@ -42,7 +43,7 @@ describe('Customers dashboard page', () => {
       }),
       '/api/tenant/settings': () => ({ json: { tenant: { _id: tenantId } } }),
     });
-    render(<CustomersPage />);
+    renderWithRole(<CustomersPage />, 'admin');
     await waitFor(() => expect(screen.getByText('Jamie')).toBeInTheDocument());
 
     await userEvent.type(screen.getByLabelText('Search customers'), 'sam@');
@@ -55,7 +56,7 @@ describe('Customers dashboard page', () => {
       '/api/customers': () => ({ json: [{ _id: 'c1', name: 'Jamie', email: 'j@example.test', phone: '555', loyaltyPoints: {} }] }),
       '/api/tenant/settings': () => ({ json: null }),
     });
-    render(<CustomersPage />);
+    renderWithRole(<CustomersPage />, 'admin');
     await waitFor(() => expect(screen.getByText('Jamie')).toBeInTheDocument());
     expect(screen.getByText('—')).toBeInTheDocument();
   });

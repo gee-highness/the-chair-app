@@ -294,13 +294,14 @@ function applyGroup(rows: Doc[], spec: Doc): Doc[] {
   });
 }
 
-// A minimal stand-in for the driver's FindCursor: only .sort()/.limit()/.project()
+// A minimal stand-in for the driver's FindCursor: only .sort()/.skip()/.limit()/.project()
 // chaining (both mutate-and-return-this, matching the real cursor) plus
 // .toArray(), which is all the app's find() call sites use.
 class FakeCursor {
   private rows: Doc[];
   private sortSpec: Record<string, 1 | -1> | null = null;
   private limitN: number | null = null;
+  private skipN = 0;
 
   constructor(rows: Doc[]) {
     this.rows = rows;
@@ -316,6 +317,11 @@ class FakeCursor {
     return this;
   }
 
+  skip(n: number) {
+    this.skipN = n;
+    return this;
+  }
+
   // The driver's cursor.project(): several routes chain it after find()
   // (e.g. customers, to drop passwordHash) and the fake never had it, so those
   // routes threw "project is not a function" (a 500) under test.
@@ -326,6 +332,7 @@ class FakeCursor {
 
   async toArray() {
     let out = this.sortSpec ? sortDocs(this.rows, this.sortSpec) : this.rows;
+    if (this.skipN) out = out.slice(this.skipN);
     if (this.limitN != null) out = out.slice(0, this.limitN);
     return out;
   }

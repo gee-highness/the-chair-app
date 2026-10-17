@@ -9,6 +9,10 @@ import '@testing-library/jest-dom/vitest';
 import { afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 
+// src/lib/mongodb.ts refuses to load without a URI. It only connects when a
+// function is called (tests use fakeMongo), so a placeholder is enough.
+process.env.MONGODB_URI ||= 'mongodb://localhost:27017/chair-app-test';
+
 // Unmounts every rendered component after each test so state/DOM from one
 // test never leaks into the next — the single most common cause of
 // order-dependent flakiness in RTL suites.

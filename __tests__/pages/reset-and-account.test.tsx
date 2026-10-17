@@ -5,7 +5,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { mockFetch } from '../helpers/fetchMock';
+import { mockFetch, bodyOf } from '../helpers/fetchMock';
 
 const router = vi.hoisted(() => ({ push: vi.fn(), refresh: vi.fn() }));
 vi.mock('next/navigation', () => ({ useRouter: () => router, useParams: () => ({ tenantSlug: 'demo' }) }));
@@ -33,7 +33,7 @@ describe('Reset password page', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Save new password' }));
 
     expect(await screen.findByRole('status')).toHaveTextContent('updated');
-    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({ token: 'abc123', password: 'Fresh-Pass-123' });
+    expect(bodyOf(fetchMock.mock.calls[0])).toEqual({ token: 'abc123', password: 'Fresh-Pass-123' });
     // Sends them back to THAT salon's sign-in.
     expect(screen.getByRole('link')).toHaveAttribute('href', '/t/demo/login');
   });
@@ -82,7 +82,7 @@ describe('AccountPanel', () => {
 
     await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Saved'));
     const patch = fetchMock.mock.calls.find((c: any) => c[1]?.method === 'PATCH');
-    expect(JSON.parse(patch![1].body)).toEqual({ name: 'Jamie R', phone: '555 010 0100' });
+    expect(bodyOf(patch!)).toEqual({ name: 'Jamie R', phone: '555 010 0100' });
   });
 
   it('signed out: offers a sign-in link for that salon', async () => {
@@ -117,7 +117,7 @@ describe('AccountPanel', () => {
     await userEvent.type(cur, 'right-old-1'); // new + confirm are still filled in from the first try
     await userEvent.click(screen.getByRole('button', { name: 'Change password' }));
     expect(await screen.findByRole('status')).toHaveTextContent('Password updated');
-    expect(JSON.parse(fetchMock.mock.calls.filter((c: any) => c[0].includes('/password')).pop()![1].body)).toEqual({ currentPassword: 'right-old-1', newPassword: 'Brand-New-Pass1' });
+    expect(bodyOf(fetchMock.mock.calls.filter((c: any) => c[0].includes('/password')).pop()!)).toEqual({ currentPassword: 'right-old-1', newPassword: 'Brand-New-Pass1' });
   });
 });
 

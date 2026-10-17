@@ -69,7 +69,7 @@ describe('Services dashboard page', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Add service' }));
     await userEvent.type(screen.getByLabelText('Name'), 'Beard Trim');
-    const priceInput = screen.getByLabelText('Price ($)');
+    const priceInput = screen.getByLabelText(/^Price \(/);
     await userEvent.clear(priceInput);
     await userEvent.type(priceInput, '10');
     const durationInput = screen.getByLabelText('Duration (min)');

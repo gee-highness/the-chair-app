@@ -180,33 +180,37 @@ export default function BookPage() {
 
   const submitBooking = async () => {
     if (!selectedService || !selectedBarber || !selectedSlot) return;
-    
-    await startConfirmation(async () => {
-      const res = await fetch(`/api/t/${tenantSlug}/book`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          customerName: contact.name,
-          customerEmail: contact.email,
-          customerPhone: contact.phone,
-          serviceId: selectedService._id,
-          barberId: selectedBarber._id,
-          dateTime: selectedSlot,
-          notes: contact.notes,
-        }),
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        toast.show(data.message || 'Could not book that time', 'error');
-        if (res.status === 409) {
-          setStep(3);
-          setSlots(null);
-          setSelectedSlot(null);
+
+    try {
+      await startConfirmation(async () => {
+        const res = await fetch(`/api/t/${tenantSlug}/book`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customerName: contact.name,
+            customerEmail: contact.email,
+            customerPhone: contact.phone,
+            serviceId: selectedService._id,
+            barberId: selectedBarber._id,
+            dateTime: selectedSlot,
+            notes: contact.notes,
+          }),
+        });
+        if (!res.ok) {
+          const data = await res.json();
+          toast.show(data.message || 'Could not book that time', 'error');
+          if (res.status === 409) {
+            setStep(3);
+            setSlots(null);
+            setSelectedSlot(null);
+          }
+          throw new Error(data.message || 'Booking failed');
         }
-        throw new Error(data.message || 'Booking failed');
-      }
-      setConfirmed(true);
-    });
+        setConfirmed(true);
+      });
+    } catch {
+      // Already shown as a toast; the sequence rethrows so it can reset.
+    }
   };
 
   if (loading) return <SkeletonLines count={6} />;

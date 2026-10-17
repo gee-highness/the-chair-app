@@ -2,7 +2,8 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { mockFetch } from '../helpers/fetchMock';
+import { renderWithToast } from '../helpers/testProviders';
+import { mockFetch, bodyOf } from '../helpers/fetchMock';
 
 vi.mock('next/navigation', () => ({
   useParams: () => ({ tenantSlug: 'demo' }),
@@ -27,7 +28,7 @@ describe('Booking page', () => {
 
   it('shows an empty state when the tenant has no services listed', async () => {
     mockFetch({ '/api/public/tenants/demo': () => ({ json: { services: [], barbers: [], categories: [] } }) });
-    render(<BookPage />);
+    renderWithToast(<BookPage />);
     await waitFor(() => expect(screen.getByText('No services listed yet')).toBeInTheDocument());
   });
 
@@ -39,7 +40,7 @@ describe('Booking page', () => {
         return { json: { slots: [isoSlot] } };
       },
     });
-    render(<BookPage />);
+    renderWithToast(<BookPage />);
 
     // Step 1: choose service
     await waitFor(() => expect(screen.getByRole('heading', { name: 'Choose a service' })).toBeInTheDocument());
@@ -68,7 +69,7 @@ describe('Booking page', () => {
     expect(screen.getByText(/save this confirmation/i)).toBeInTheDocument();
 
     const postCall = fetchMock.mock.calls.find((c: any) => c[1]?.method === 'POST');
-    const body = JSON.parse(postCall![1].body);
+    const body = bodyOf(postCall!);
     expect(body).toMatchObject({ customerName: 'Jamie Customer', customerEmail: 'jamie@example.test', customerPhone: '555-0100', serviceId: 's1', barberId: 'b1', dateTime: isoSlot });
   });
 
@@ -77,7 +78,7 @@ describe('Booking page', () => {
       '/api/public/tenants/demo': () => ({ json: tenantDetails }),
       '/api/t/demo/book': () => ({ json: { slots: [] } }),
     });
-    render(<BookPage />);
+    renderWithToast(<BookPage />);
     await userEvent.click(await screen.findByRole('button', { name: /Classic Fade/ }));
     await userEvent.click(await screen.findByRole('button', { name: /Alex/ }));
     await waitFor(() => expect(screen.getByText('No open times that day')).toBeInTheDocument());
@@ -88,7 +89,7 @@ describe('Booking page', () => {
       '/api/public/tenants/demo': () => ({ json: tenantDetails }),
       '/api/t/demo/book': () => ({ json: { slots: [isoSlot] } }),
     });
-    render(<BookPage />);
+    renderWithToast(<BookPage />);
     await userEvent.click(await screen.findByRole('button', { name: /Classic Fade/ }));
     await userEvent.click(await screen.findByRole('button', { name: /Alex/ }));
     await waitFor(() => expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled());
@@ -102,7 +103,7 @@ describe('Booking page', () => {
         return { json: { slots: [isoSlot] } };
       },
     });
-    render(<BookPage />);
+    renderWithToast(<BookPage />);
     await userEvent.click(await screen.findByRole('button', { name: /Classic Fade/ }));
     await userEvent.click(await screen.findByRole('button', { name: /Alex/ }));
     const slotButton = await screen.findByRole('button', { name: new RegExp(new Date(isoSlot).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })) });
@@ -124,7 +125,7 @@ describe('Booking page', () => {
       '/api/public/tenants/demo': () => ({ json: tenantDetails }),
       '/api/t/demo/book': () => ({ json: { slots: [isoSlot] } }),
     });
-    render(<BookPage />);
+    renderWithToast(<BookPage />);
     await userEvent.click(await screen.findByRole('button', { name: /Classic Fade/ }));
     await userEvent.click(await screen.findByRole('button', { name: /Alex/ }));
     await waitFor(() => expect(screen.getByRole('heading', { name: 'Pick a time' })).toBeInTheDocument());

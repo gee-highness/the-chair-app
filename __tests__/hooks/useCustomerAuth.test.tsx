@@ -59,11 +59,14 @@ describe('useCustomerAuth', () => {
     expect(result.current.signInOpen).toBe(true);
 
     // Simulate a successful sign-in: the next /me call now succeeds.
-    fetchMock.mockImplementation(async () => ({
-      ok: true,
-      status: 200,
-      json: async () => ({ customerId: '1', name: 'Jamie', email: 'jamie@example.test' }),
-    }));
+    fetchMock.mockImplementation(
+      async () =>
+        ({
+          ok: true,
+          status: 200,
+          json: async () => ({ customerId: '1', name: 'Jamie', email: 'jamie@example.test' }),
+        }) as Response
+    );
 
     act(() => result.current.onSignedIn());
     expect(result.current.signInOpen).toBe(false);

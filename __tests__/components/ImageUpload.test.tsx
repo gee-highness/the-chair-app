@@ -51,7 +51,8 @@ describe('ImageUpload', () => {
 
     const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement;
     const file = new File(['fake-bytes'], 'photo.pdf', { type: 'application/pdf' });
-    await userEvent.upload(fileInput, file);
+    // The input's accept filter would normally stop a PDF being chosen at all; bypass it to test the server's refusal.
+    await userEvent.setup({ applyAccept: false }).upload(fileInput, file);
 
     await waitFor(() => expect(screen.getByText('Unsupported file type')).toBeInTheDocument());
     expect(onChange).not.toHaveBeenCalled();

@@ -1,8 +1,7 @@
 // __tests__/customer-auth.test.ts
 //
-// The lightweight customer-claim auth flow (customerAuth.ts): request a
-// one-time code by email, verify it for a session cookie, read "who am
-// I" from that cookie, and sign out. No password, no full account.
+// The customer session cookie (customerAuth.ts): read "who am I" from it and
+// sign out. Customers sign in with email + password through /api/auth/login.
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ObjectId } from 'mongodb';
 import crypto from 'crypto';
@@ -27,98 +26,6 @@ function jsonReq(url: string, method: 'GET' | 'POST', body?: any, cookie?: strin
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
 }
-
-describe('POST /api/customer-auth/request', () => {
-  beforeEach(() => {
-    fakeDb.db = new FakeDb();
-  });
-  afterEach(() => {
-    vi.unstubAllEnvs();
-  });
-
-  it('returns the SAME generic message whether or not the email matches a customer (no enumeration signal)', async () => {
-    const { POST } = await import('@/app/api/customer-auth/request/route');
-    const db = fakeDb.db as FakeDb;
-    db.collection('customers').seed([{ _id: new ObjectId(), email: 'real@example.test', name: 'Real Customer' }]);
-
-    const forReal = await (await POST(jsonReq('http://localhost/api/customer-auth/request', 'POST', { email: 'real@example.test' }))).json();
-    const forFake = await (await POST(jsonReq('http://localhost/api/customer-auth/request', 'POST', { email: 'nobody@example.test' }))).json();
-    expect(forReal.message).toBe(forFake.message);
-  });
-
-  it('outside production, hands back devCode for an existing customer so the flow is testable without an email provider', async () => {
-    vi.stubEnv('NODE_ENV', 'development');
-    const { POST } = await import('@/app/api/customer-auth/request/route');
-    const db = fakeDb.db as FakeDb;
-    db.collection('customers').seed([{ _id: new ObjectId(), email: 'real@example.test', name: 'Real Customer' }]);
-
-    const body = await (await POST(jsonReq('http://localhost/api/customer-auth/request', 'POST', { email: 'real@example.test' }))).json();
-    expect(body.devCode).toMatch(/^\d{6}$/);
-  });
-
-  it('does NOT return devCode in production, even for a real customer', async () => {
-    vi.stubEnv('NODE_ENV', 'production');
-    const { POST } = await import('@/app/api/customer-auth/request/route');
-    const db = fakeDb.db as FakeDb;
-    db.collection('customers').seed([{ _id: new ObjectId(), email: 'real@example.test', name: 'Real Customer' }]);
-
-    const body = await (await POST(jsonReq('http://localhost/api/customer-auth/request', 'POST', { email: 'real@example.test' }))).json();
-    expect(body.devCode).toBeUndefined();
-  });
-
-  it('rejects a missing email', async () => {
-    const { POST } = await import('@/app/api/customer-auth/request/route');
-    const res = await POST(jsonReq('http://localhost/api/customer-auth/request', 'POST', {}));
-    expect(res.status).toBe(400);
-  });
-});
-
-describe('POST /api/customer-auth/verify', () => {
-  beforeEach(() => {
-    fakeDb.db = new FakeDb();
-  });
-
-  it('rejects an invalid code', async () => {
-    const { POST } = await import('@/app/api/customer-auth/verify/route');
-    const res = await POST(jsonReq('http://localhost/api/customer-auth/verify', 'POST', { email: 'x@example.test', code: '000000' }));
-    expect(res.status).toBe(401);
-  });
-
-  it('rejects an EXPIRED code', async () => {
-    const { POST } = await import('@/app/api/customer-auth/verify/route');
-    const db = fakeDb.db as FakeDb;
-    const customerId = new ObjectId();
-    db.collection('customerClaims').seed([
-      { codeHash: hash('123456'), customerId, email: 'x@example.test', expiresAt: new Date(Date.now() - 1000) },
-    ]);
-    const res = await POST(jsonReq('http://localhost/api/customer-auth/verify', 'POST', { email: 'x@example.test', code: '123456' }));
-    expect(res.status).toBe(401);
-  });
-
-  it('a valid code sets the customerClaim cookie and the code is single-use', async () => {
-    const { POST } = await import('@/app/api/customer-auth/verify/route');
-    const db = fakeDb.db as FakeDb;
-    const customerId = new ObjectId();
-    db.collection('customerClaims').seed([
-      { codeHash: hash('123456'), customerId, email: 'x@example.test', expiresAt: new Date(Date.now() + 60_000) },
-    ]);
-
-    const res = await POST(jsonReq('http://localhost/api/customer-auth/verify', 'POST', { email: 'x@example.test', code: '123456' }));
-    expect(res.status).toBe(200);
-    expect(res.headers.get('set-cookie') || '').toMatch(/customerClaim=/);
-    expect(await db.collection('customerClaims').countDocuments({})).toBe(0); // single-use — deleted
-
-    // Re-using the same code again must now fail.
-    const second = await POST(jsonReq('http://localhost/api/customer-auth/verify', 'POST', { email: 'x@example.test', code: '123456' }));
-    expect(second.status).toBe(401);
-  });
-
-  it('rejects a missing email or code', async () => {
-    const { POST } = await import('@/app/api/customer-auth/verify/route');
-    const res = await POST(jsonReq('http://localhost/api/customer-auth/verify', 'POST', { email: 'x@example.test' }));
-    expect(res.status).toBe(400);
-  });
-});
 
 describe('GET /api/customer-auth/me', () => {
   beforeEach(() => {

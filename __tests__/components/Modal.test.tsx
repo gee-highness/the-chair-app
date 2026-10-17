@@ -70,7 +70,9 @@ describe('Modal', () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 
-  it('Tab wraps from the last focusable element back to the first', async () => {
+  // The header's close button is the first focusable element in the dialog,
+  // so the trap wraps to it rather than to the first child.
+  it('Tab wraps from the last focusable element back to the first (the close button)', async () => {
     const user = userEvent.setup();
     render(
       <Modal open onClose={() => {}} title="My Dialog">
@@ -79,14 +81,14 @@ describe('Modal', () => {
       </Modal>
     );
     const last = screen.getByRole('button', { name: 'Last' });
-    const first = screen.getByRole('button', { name: 'First' });
+    const close = screen.getByRole('button', { name: 'Close dialog' });
     last.focus();
     expect(document.activeElement).toBe(last);
     await user.tab();
-    expect(document.activeElement).toBe(first);
+    expect(document.activeElement).toBe(close);
   });
 
-  it('Shift+Tab wraps from the first focusable element back to the last', async () => {
+  it('Shift+Tab wraps from the first focusable element (the close button) back to the last', async () => {
     const user = userEvent.setup();
     render(
       <Modal open onClose={() => {}} title="My Dialog">
@@ -94,10 +96,10 @@ describe('Modal', () => {
         <button>Last</button>
       </Modal>
     );
-    const first = screen.getByRole('button', { name: 'First' });
+    const close = screen.getByRole('button', { name: 'Close dialog' });
     const last = screen.getByRole('button', { name: 'Last' });
-    first.focus();
-    expect(document.activeElement).toBe(first);
+    close.focus();
+    expect(document.activeElement).toBe(close);
     await user.tab({ shift: true });
     expect(document.activeElement).toBe(last);
   });

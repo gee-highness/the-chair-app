@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ObjectId } from 'mongodb';
 import crypto from 'crypto';
 import { FakeDb } from './helpers/fakeMongo';
+import { nextRequest } from './helpers/nextRequest';
 
 const fakeDb = vi.hoisted(() => ({ db: null as any }));
 
@@ -37,12 +38,13 @@ function tenantStaffToken(db: FakeDb, tenantId: ObjectId) {
   return rawToken;
 }
 
-function req(method: string, rawToken?: string, body?: any) {
-  return new Request('http://localhost/api/platform/tenants', {
+function req(method: string, rawToken?: string, body?: any, query = '') {
+  // NextRequest, not a bare Request: the route reads req.nextUrl.searchParams.
+  return nextRequest(`http://localhost/api/platform/tenants${query}`, {
     method,
     headers: { ...(rawToken ? { cookie: `session=${rawToken}` } : {}), 'content-type': 'application/json' },
     body: body ? JSON.stringify(body) : undefined,
-  }) as any;
+  });
 }
 
 describe('GET /api/platform/tenants', () => {
@@ -69,7 +71,24 @@ describe('GET /api/platform/tenants', () => {
     const res = await GET(req('GET', rawToken));
     expect(res.status).toBe(200);
     const body = await res.json();
-    expect(body).toHaveLength(2);
+    expect(body.tenants).toHaveLength(2);
+    expect(body).toMatchObject({ total: 2, page: 1, pageCount: 1 });
+  });
+
+  it('paginates and filters by status', async () => {
+    const { GET } = await import('@/app/api/platform/tenants/route');
+    const db = fakeDb.db as FakeDb;
+    db.collection('tenants').seed([
+      { _id: new ObjectId(), slug: 'a', name: 'A', status: 'active', createdAt: new Date(3) },
+      { _id: new ObjectId(), slug: 'b', name: 'B', status: 'active', createdAt: new Date(2) },
+      { _id: new ObjectId(), slug: 'c', name: 'C', status: 'suspended', createdAt: new Date(1) },
+    ]);
+    const rawToken = superAdminToken(db);
+    const page1 = await (await GET(req('GET', rawToken, undefined, '?pageSize=1&page=1'))).json();
+    expect(page1.tenants.map((t: any) => t.slug)).toEqual(['a']);
+    expect(page1).toMatchObject({ total: 3, pageCount: 3 });
+    const suspended = await (await GET(req('GET', rawToken, undefined, '?status=suspended'))).json();
+    expect(suspended.tenants.map((t: any) => t.slug)).toEqual(['c']);
   });
 });
 

@@ -18,9 +18,11 @@ function FieldShell({ label, hint, error, required, children }: FieldShellProps)
 
   return (
     <div className={styles.field}>
-      <label htmlFor={id} className={styles.label}>
+      {/* The asterisk is drawn by CSS so it is not part of the label's text:
+          the accessible name stays "Email" and the input's required attribute
+          is what announces the requirement. */}
+      <label htmlFor={id} className={[styles.label, required ? styles.labelRequired : ''].join(' ')}>
         {label}
-        {required && <span className={styles.required} aria-hidden="true"> *</span>}
       </label>
       {children(id, describedBy)}
       {hint && !error && (

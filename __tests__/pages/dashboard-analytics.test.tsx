@@ -33,8 +33,10 @@ describe('Analytics dashboard page', () => {
       }),
     });
     renderWithRole(<AnalyticsPage />, 'admin');
-    await waitFor(() => expect(screen.getByText('2')).toBeInTheDocument()); // totalBookings stat
-    expect(screen.getByText('$50')).toBeInTheDocument();
+    // 2 appears as the total and again as each ranking's count.
+    await waitFor(() => expect(screen.getAllByText('2').length).toBeGreaterThan(0));
+    // Default currency is ZAR ("R 50,00"); match the amount, not the symbol.
+    expect(screen.getAllByText(/50[.,]00/).length).toBeGreaterThan(0);
   });
 
   it('shows an empty state for the timeline when there are no bookings in the window', async () => {

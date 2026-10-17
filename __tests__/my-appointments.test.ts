@@ -136,8 +136,8 @@ describe('PATCH /api/t/[tenantSlug]/my-appointments (customer cancels)', () => {
     const res = await cancel(future);
     expect(res.status).toBe(200);
     const row = (fakeDb.db as FakeDb).collection('appointments').docs.find((d: any) => d._id.equals(future));
-    expect(row.status).toBe('cancelled');
-    expect(row.log.at(-1).changedBy).toBe(`customer:${customerId.toString()}`);
+    expect(row?.status).toBe('cancelled');
+    expect(row?.log.at(-1).changedBy).toBe(`customer:${customerId.toString()}`);
   });
 
   it('refuses past, completed and other people’s bookings', async () => {
@@ -145,7 +145,7 @@ describe('PATCH /api/t/[tenantSlug]/my-appointments (customer cancels)', () => {
     expect((await cancel(done)).status).toBe(409);
     expect((await cancel(someoneElses)).status).toBe(404);
     const row = (fakeDb.db as FakeDb).collection('appointments').docs.find((d: any) => d._id.equals(someoneElses));
-    expect(row.status).toBe('pending');
+    expect(row?.status).toBe('pending');
   });
 
   it('rejects a malformed id', async () => {
