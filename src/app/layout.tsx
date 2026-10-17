@@ -3,10 +3,13 @@ import { fontVariables } from './fonts';
 import { InstallPrompt } from '@/components/InstallPrompt';
 import { ServiceWorkerRegistrar } from '@/components/ServiceWorkerRegistrar';
 import { ToastProvider } from '@/components/ui/Toast';
+import { ConfirmProvider } from '@/components/ui/Confirm';
 import { SiteFooter } from '@/components/SiteFooter';
 import { SITE_NAME, SITE_URL } from '@/lib/site';
+import { DISPLAY_PREFS_SCRIPT } from '@/lib/displayPrefs';
 import '../styles/tokens.css';
 import '../styles/globals-animations.css';
+import '../styles/display.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -36,8 +39,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={fontVariables}>
+    <html lang="en" className={fontVariables} suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: DISPLAY_PREFS_SCRIPT }} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#1f3b2e" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -45,7 +49,9 @@ export default function RootLayout({
       </head>
       <body>
         <div className="app-root">
-          <ToastProvider>{children}</ToastProvider>
+          <ToastProvider>
+            <ConfirmProvider>{children}</ConfirmProvider>
+          </ToastProvider>
         </div>
         <SiteFooter />
         <InstallPrompt />

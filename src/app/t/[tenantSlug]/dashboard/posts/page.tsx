@@ -13,6 +13,7 @@ import { ImageUpload } from '@/components/ui/ImageUpload';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonLines } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
+import { useConfirm } from '@/components/ui/Confirm';
 import { useRole } from '@/hooks/useRole';
 import styles from './page.module.css';
 
@@ -40,6 +41,7 @@ export default function PostsPage() {
   // posting on behalf of any of them.
   const needsBarberPicker = role === 'admin';
   const toast = useToast();
+  const confirm = useConfirm();
   const [posts, setPosts] = useState<Post[] | null>(null);
   const [barbers, setBarbers] = useState<BarberOption[] | null>(null);
   const [barberId, setBarberId] = useState('');
@@ -87,7 +89,7 @@ export default function PostsPage() {
   };
 
   const remove = async (post: Post) => {
-    if (!confirm('Delete this post?')) return;
+    if (!(await confirm('Delete this post?'))) return;
     const res = await fetch(`/api/posts?_id=${post._id}`, { method: 'DELETE' });
     const data = await res.json();
     if (res.ok) {

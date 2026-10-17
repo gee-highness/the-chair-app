@@ -49,7 +49,7 @@ describe('SiteFooter', () => {
   it('warns assistive tech that the salon-page link opens a new tab', () => {
     mocks.pathname = '/t/quano-locs';
     render(<SiteFooter />);
-    expect(screen.getByText(/opens in a new tab/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/opens in a new tab/i).length).toBeGreaterThan(0);
   });
 
   it('also appears on staff dashboard pages', () => {

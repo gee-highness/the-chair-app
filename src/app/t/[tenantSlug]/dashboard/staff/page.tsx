@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonLines } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
+import { useConfirm } from '@/components/ui/Confirm';
 import { useRole } from '@/hooks/useRole';
 import { downloadBase64Pdf, pdfFilename } from '@/lib/downloadPdf';
 import styles from './page.module.css';
@@ -39,6 +40,7 @@ export default function StaffPage() {
   const role = useRole();
   const allowed = role === 'admin';
   const toast = useToast();
+  const confirm = useConfirm();
 
   const [staff, setStaff] = useState<StaffMember[] | null>(null);
   const [barbers, setBarbers] = useState<BarberOption[]>([]);
@@ -94,7 +96,7 @@ export default function StaffPage() {
   };
 
   const resend = async (s: StaffMember) => {
-    if (s.status === 'active' && !confirm(`Give ${s.username} a new temporary password? Their current password will stop working and they'll be signed out everywhere.`)) return;
+    if (s.status === 'active' && !(await confirm(`Give ${s.username} a new temporary password? Their current password will stop working and they'll be signed out everywhere.`))) return;
     setBusyId(s._id);
     try {
       const res = await fetch('/api/staff/resend', {
@@ -115,7 +117,7 @@ export default function StaffPage() {
   };
 
   const remove = async (s: StaffMember) => {
-    if (!confirm(`Remove ${s.username}'s staff access? This can't be undone.`)) return;
+    if (!(await confirm(`Remove ${s.username}'s staff access? This can't be undone.`))) return;
     setBusyId(s._id);
     try {
       const res = await fetch(`/api/staff?id=${s._id}`, { method: 'DELETE' });

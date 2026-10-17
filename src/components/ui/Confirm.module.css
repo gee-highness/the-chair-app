@@ -1,0 +1,12 @@
+.message {
+  margin: 0 0 var(--space-5);
+  color: var(--ink-soft);
+  line-height: var(--leading-normal);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}

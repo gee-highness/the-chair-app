@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonLines } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
+import { useConfirm } from '@/components/ui/Confirm';
 import styles from './page.module.css';
 
 interface LoginAttemptGroup {
@@ -25,6 +26,7 @@ interface LoginAttemptGroup {
 
 export default function SecurityPage() {
   const toast = useToast();
+  const confirm = useConfirm();
   const [attempts, setAttempts] = useState<LoginAttemptGroup[] | null>(null);
   const [revokeEmail, setRevokeEmail] = useState('');
   const [revoking, setRevoking] = useState(false);
@@ -37,7 +39,7 @@ export default function SecurityPage() {
 
   const revoke = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!confirm(`Sign out every active session for ${revokeEmail}?`)) return;
+    if (!(await confirm(`Sign out every active session for ${revokeEmail}?`))) return;
     setRevoking(true);
     try {
       const res = await fetch('/api/platform/security/sessions', {

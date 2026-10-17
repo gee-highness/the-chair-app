@@ -1,0 +1,37 @@
+.page {
+  max-width: var(--max-narrow);
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4) var(--space-8);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  line-height: var(--leading-tight);
+  margin: var(--space-4) 0 var(--space-2);
+}
+
+.updated {
+  margin: 0 0 var(--space-6);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+}
+
+.body h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  margin: var(--space-6) 0 var(--space-2);
+}
+
+.body p,
+.body li {
+  line-height: var(--leading-loose);
+  color: var(--ink-soft);
+}
+
+.body a {
+  color: var(--ink);
+  text-decoration-color: var(--brass);
+  text-underline-offset: 3px;
+}

@@ -54,6 +54,29 @@
   text-decoration-thickness: 3px;
 }
 
+.inner + .inner {
+  margin-top: var(--space-2);
+}
+
+.legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-5);
+}
+
+.legal a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--ink-soft);
+  text-underline-offset: 4px;
+}
+
+.legal a:hover {
+  color: var(--ink);
+  text-decoration-color: var(--brass);
+}
+
 @media (max-width: 600px) {
   .inner {
     flex-direction: column;

@@ -39,10 +39,21 @@ describe('sitemap', () => {
     expect(urls.some((u) => u.includes('/dashboard') || u.includes('/login') || u.includes('/admin'))).toBe(false);
   });
 
+  it('lists the static legal and contact pages', async () => {
+    const sitemap = (await import('@/app/sitemap')).default;
+    const urls = (await sitemap()).map((e) => e.url);
+    expect(urls).toEqual(expect.arrayContaining([
+      'https://the-chair-app.vercel.app/privacy',
+      'https://the-chair-app.vercel.app/terms',
+      'https://the-chair-app.vercel.app/contact',
+    ]));
+  });
+
   it('still serves the home entry if the database fails', async () => {
     fakeDb.db = { collection: () => { throw new Error('db down'); } };
     const sitemap = (await import('@/app/sitemap')).default;
     const urls = (await sitemap()).map((e) => e.url);
-    expect(urls).toEqual(['https://the-chair-app.vercel.app']);
+    expect(urls[0]).toBe('https://the-chair-app.vercel.app');
+    expect(urls.some((u) => u.includes('/t/'))).toBe(false);
   });
 });

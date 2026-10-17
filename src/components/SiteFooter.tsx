@@ -14,6 +14,8 @@
 'use client';
 import { usePathname } from 'next/navigation';
 import { SITE_HOST, SITE_NAME, discoveryUrl } from '@/lib/site';
+import Link from 'next/link';
+import { DisplayMenu } from './DisplayMenu';
 import styles from './SiteFooter.module.css';
 
 const TENANT_PATH = /^\/t\/([^/]+)/;
@@ -43,6 +45,14 @@ export function SiteFooter() {
           <span aria-hidden="true">{' \u2197'}</span>
           {inSalon && <span className="visually-hidden"> (opens in a new tab)</span>}
         </a>
+      </div>
+      <div className={styles.inner}>
+        <nav className={styles.legal} aria-label="Legal and help">
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/terms">Terms</Link>
+          <Link href="/contact">Contact</Link>
+        </nav>
+        <DisplayMenu />
       </div>
     </footer>
   );

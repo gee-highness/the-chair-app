@@ -10,6 +10,7 @@ import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonLines } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
+import { useConfirm } from '@/components/ui/Confirm';
 import { useRole } from '@/hooks/useRole';
 import { AvailabilityEditor, DailyAvailability } from '@/components/dashboard/AvailabilityEditor';
 import styles from './page.module.css';
@@ -43,6 +44,7 @@ export default function BarbersPage() {
   const role = useRole();
   const allowed = role === 'admin';
   const toast = useToast();
+  const confirm = useConfirm();
   const [barbers, setBarbers] = useState<Barber[] | null>(null);
   const [modal, setModal] = useState<{ open: boolean; editing?: Barber }>({ open: false });
   const [form, setForm] = useState(emptyForm);
@@ -101,7 +103,7 @@ export default function BarbersPage() {
   };
 
   const remove = async (b: Barber) => {
-    if (!confirm(`Remove ${b.name} from your barbers?`)) return;
+    if (!(await confirm(`Remove ${b.name} from your barbers?`))) return;
     const res = await fetch(`/api/barbers?id=${b._id}`, { method: 'DELETE' });
     const data = await res.json();
     if (res.ok) {
