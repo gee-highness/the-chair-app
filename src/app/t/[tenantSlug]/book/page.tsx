@@ -9,6 +9,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Input, Textarea } from '@/components/ui/Field';
@@ -45,8 +46,57 @@ interface Barber {
   tags?: string[];
 }
 
+const SLOT_GROUPS: Array<{ label: string; test: (hour: number) => boolean }> = [
+  { label: 'Morning', test: (h) => h < 12 },
+  { label: 'Afternoon', test: (h) => h >= 12 && h < 17 },
+  { label: 'Evening', test: (h) => h >= 17 },
+];
+
+/** The next 14 days as quick-pick chips, starting today. */
+function upcomingDays(): string[] {
+  return Array.from({ length: 14 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() + i);
+    return isoDate(d);
+  });
+}
+
+function dayParts(iso: string) {
+  const d = new Date(`${iso}T12:00:00`);
+  return {
+    weekday: d.toLocaleDateString([], { weekday: 'short' }),
+    day: d.getDate(),
+    full: d.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' }),
+  };
+}
+
+/** A calendar file the customer can open to add the visit to their phone. */
+function calendarFile(title: string, startIso: string, minutes: number, where: string): string {
+  const stamp = (d: Date) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  const start = new Date(startIso);
+  const end = new Date(start.getTime() + minutes * 60000);
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//The Chair App//Booking//EN',
+    'BEGIN:VEVENT',
+    `UID:${start.getTime()}@the-chair-app`,
+    `DTSTAMP:${stamp(new Date())}`,
+    `DTSTART:${stamp(start)}`,
+    `DTEND:${stamp(end)}`,
+    `SUMMARY:${title}`,
+    `LOCATION:${where}`,
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ];
+  return lines.join('\r\n');
+}
+
+// Local calendar date (not UTC): near midnight, toISOString() would offer
+// yesterday or tomorrow as "today".
 function isoDate(d: Date) {
-  return d.toISOString().slice(0, 10);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
 export default function BookPage() {
@@ -195,8 +245,32 @@ export default function BookPage() {
           {selectedSlot && new Date(selectedSlot).toLocaleString([], { weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
         </p>
         <p className={styles.confirmNote}>
-          Your time is held and shows as <strong>Pending</strong> until the salon confirms it. Check <em>My appointments</em> for updates. If the salon has email set up, we'll also email {contact.email}.
+          Your time is held and shows as <strong>Pending</strong> until the salon confirms it. Save this confirmation, and check <em>My appointments</em> for updates. If the salon has email set up, we'll also email {contact.email}.
         </p>
+        <div className={styles.confirmActions}>
+          {selectedSlot && selectedService && (
+            <Button
+              variant="secondary"
+              onClick={() => {
+                const file = calendarFile(`${selectedService.name} with ${selectedBarber?.name ?? ''}`, selectedSlot, selectedService.duration, tenantSlug);
+                const url = URL.createObjectURL(new Blob([file], { type: 'text/calendar' }));
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'appointment.ics';
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+            >
+              Add to calendar
+            </Button>
+          )}
+          <Link href={`/t/${tenantSlug}/appointments`}>
+            <Button variant="secondary">My appointments</Button>
+          </Link>
+          <Link href={`/t/${tenantSlug}`}>
+            <Button variant="ghost">Back to salon</Button>
+          </Link>
+        </div>
       </Ticket>
       </>
     );
@@ -209,6 +283,30 @@ export default function BookPage() {
         current={step}
         completed={step - 1}
       />
+
+      {step > 1 && selectedService && (
+        <div className={styles.summary} aria-label="Your booking so far">
+          <button type="button" className={styles.summaryChip} onClick={() => setStep(1)}>
+            <span className={styles.summaryLabel}>Service</span>
+            {selectedService.name}
+          </button>
+          {selectedBarber && step > 2 && (
+            <button type="button" className={styles.summaryChip} onClick={() => setStep(2)}>
+              <span className={styles.summaryLabel}>Barber</span>
+              {selectedBarber.name}
+            </button>
+          )}
+          {selectedSlot && step > 3 && (
+            <button type="button" className={styles.summaryChip} onClick={() => setStep(3)}>
+              <span className={styles.summaryLabel}>Time</span>
+              {new Date(selectedSlot).toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
+            </button>
+          )}
+          <span className={styles.summaryTotal}>
+            {formatPrice(selectedService.price, currency)} · {selectedService.duration} min
+          </span>
+        </div>
+      )}
 
       {step === 1 && (
         <section>
@@ -293,24 +391,55 @@ export default function BookPage() {
             {selectedService.name} with {selectedBarber.name}
           </p>
 
-          <input type="date" className={styles.dateInput} value={date} min={isoDate(new Date())} onChange={(e) => setDate(e.target.value)} />
+          <div className={styles.dayStrip} role="group" aria-label="Choose a day">
+            {upcomingDays().map((iso) => {
+              const { weekday, day, full } = dayParts(iso);
+              return (
+                <button
+                  key={iso}
+                  type="button"
+                  className={[styles.dayChip, date === iso ? styles.dayChipActive : ''].join(' ')}
+                  aria-pressed={date === iso}
+                  aria-label={full}
+                  onClick={() => setDate(iso)}
+                >
+                  <span className={styles.dayWeekday}>{weekday}</span>
+                  <span className={styles.dayNumber}>{day}</span>
+                </button>
+              );
+            })}
+          </div>
+          <label className={styles.otherDate}>
+            Another date
+            <input type="date" className={styles.dateInput} value={date} min={isoDate(new Date())} onChange={(e) => setDate(e.target.value)} />
+          </label>
 
           {slots === null ? (
             <SkeletonLines count={2} />
           ) : slots.length === 0 ? (
             <EmptyState title="No open times that day" description="Try another date." />
           ) : (
-            <div className={styles.slotGrid}>
-              {slots.map((s) => (
-                <button
-                  key={s}
-                  className={[styles.slotButton, selectedSlot === s ? styles.slotButtonActive : ''].join(' ')}
-                  onClick={() => setSelectedSlot(s)}
-                >
-                  {new Date(s).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
-                </button>
-              ))}
-            </div>
+            SLOT_GROUPS.map((g) => {
+              const inGroup = slots.filter((s) => g.test(new Date(s).getHours()));
+              if (inGroup.length === 0) return null;
+              return (
+                <div key={g.label} className={styles.slotGroup}>
+                  <h2 className={styles.slotGroupTitle}>{g.label}</h2>
+                  <div className={styles.slotGrid}>
+                    {inGroup.map((s) => (
+                      <button
+                        key={s}
+                        className={[styles.slotButton, selectedSlot === s ? styles.slotButtonActive : ''].join(' ')}
+                        aria-pressed={selectedSlot === s}
+                        onClick={() => setSelectedSlot(s)}
+                      >
+                        {new Date(s).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              );
+            })
           )}
 
           <Button fullWidth disabled={!selectedSlot} onClick={() => setStep(4)}>
@@ -329,6 +458,7 @@ export default function BookPage() {
           <Input label="Email" required type="email" value={contact.email} onChange={(e) => setContact({ ...contact, email: e.target.value })} />
           <Input label="Phone" required type="tel" value={contact.phone} onChange={(e) => setContact({ ...contact, phone: e.target.value })} />
           <Textarea label="Notes (optional)" value={contact.notes} onChange={(e) => setContact({ ...contact, notes: e.target.value })} />
+          <p className={styles.reassure}>No payment now. You pay at the salon. The salon confirms your time.</p>
           <Button
             fullWidth
             loading={submitting}
