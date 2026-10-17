@@ -1,8 +1,10 @@
 .wrap {
   min-height: 70vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: var(--space-4);
   padding: var(--space-6) var(--space-4);
 }
 .ticket { max-width: 400px; width: 100%; }

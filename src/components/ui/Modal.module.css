@@ -1,7 +1,8 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(20, 35, 28, 0.55);
+  background: var(--scrim);
+  backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -11,13 +12,14 @@
 
 .dialog {
   background: var(--paper-raised);
-  border: 1.5px solid var(--line-strong);
-  border-radius: var(--radius-ticket);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius-ticket) + 4px);
   max-width: 560px;
   width: 100%;
   max-height: 85vh;
   overflow-y: auto;
-  box-shadow: 6px 6px 0 rgba(20, 35, 28, 0.2);
+  box-shadow: var(--shadow-lg);
+  animation: sheetIn 180ms ease-out;
 }
 
 .header {
@@ -50,4 +52,28 @@
 
 .body {
   padding: var(--space-5);
+}
+
+@keyframes sheetIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Phones: dialogs become bottom sheets, reachable with a thumb. */
+@media (max-width: 600px) {
+  .overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .dialog {
+    max-width: none;
+    max-height: 90dvh;
+    border-radius: calc(var(--radius-ticket) + 6px) calc(var(--radius-ticket) + 6px) 0 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    animation-name: sheetUp;
+  }
+  @keyframes sheetUp {
+    from { transform: translateY(100%); }
+    to { transform: none; }
+  }
 }

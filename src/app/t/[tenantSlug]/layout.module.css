@@ -195,7 +195,7 @@
     display: block;
     position: fixed;
     inset: 0;
-    background: rgba(20, 35, 28, 0.45);
+    background: var(--scrim);
     z-index: 40;
   }
 }

@@ -24,9 +24,11 @@ export function SiteFooter() {
   const pathname = usePathname() || '/';
   const tenantSlug = pathname.match(TENANT_PATH)?.[1];
   const inSalon = Boolean(tenantSlug);
+  // Dashboard and admin pages have a fixed bottom tab bar on phones.
+  const hasBottomBar = /^\/t\/[^/]+\/dashboard(\/|$)/.test(pathname) || /^\/admin(\/|$)/.test(pathname);
 
   return (
-    <footer className={styles.footer}>
+    <footer className={[styles.footer, hasBottomBar ? styles.clearBar : ''].join(' ')}>
       <div className={styles.inner}>
         <a
           href={discoveryUrl(tenantSlug)}

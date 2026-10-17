@@ -84,6 +84,12 @@
   }
 }
 
+@media (max-width: 900px) {
+  .clearBar {
+    padding-bottom: calc(var(--space-4) + 64px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
 @media print {
   .footer {
     display: none;

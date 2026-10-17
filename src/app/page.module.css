@@ -52,7 +52,7 @@
 .accountButtonPrimary {
   background: var(--brass);
   border: none;
-  color: #fff;
+  color: var(--on-brass);
   padding: var(--space-2) var(--space-4);
   border-radius: var(--radius-control);
   font-size: var(--text-sm);
@@ -70,6 +70,8 @@
 .title {
   font-family: var(--font-display);
   font-size: var(--text-4xl);
+  line-height: var(--leading-tight);
+  letter-spacing: -0.02em;
   margin: 0 0 var(--space-2) 0;
 }
 
@@ -98,14 +100,22 @@
   border: 1.5px solid var(--line-strong);
   border-radius: var(--radius-control);
   font-size: var(--text-base);
+  min-height: 48px;
   background: var(--paper-raised);
   color: var(--ink);
 }
+.searchInput:focus { outline: none; border-color: var(--brass); box-shadow: var(--glow); }
 
 @media (max-width: 480px) {
   .searchForm {
-    flex-direction: column;
-    align-items: stretch;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .searchForm .searchInput {
+    grid-column: 1 / -1;
+  }
+  .title {
+    font-size: var(--text-3xl);
   }
 }
 
@@ -136,10 +146,10 @@
 }
 .resultsViewButton:hover { background: var(--paper-sunken); }
 .resultsViewButtonActive {
-  background: var(--pine);
-  color: #fff;
+  background: var(--brass);
+  color: var(--on-brass);
 }
-.resultsViewButtonActive:hover { background: var(--pine); }
+.resultsViewButtonActive:hover { background: var(--brass); }
 
 .mapWrap {
   border: 1.5px solid var(--line-strong);
@@ -297,9 +307,9 @@
 .sortSelect:focus-visible,
 .clearButton:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 .chipActive {
-  background: var(--pine);
-  border-color: var(--pine);
-  color: #fff;
+  background: var(--brass);
+  border-color: var(--brass);
+  color: var(--on-brass);
 }
 
 .toolbar {

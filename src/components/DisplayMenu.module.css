@@ -37,7 +37,7 @@
   background: var(--paper-raised);
   border: 1.5px solid var(--line-strong);
   border-radius: var(--radius-ticket);
-  box-shadow: 4px 4px 0 rgba(20, 35, 28, 0.2);
+  box-shadow: var(--shadow-lg);
   color: var(--ink);
 }
 
@@ -81,9 +81,9 @@
 }
 
 .option[aria-pressed='true'] {
-  background: var(--pine);
-  border-color: var(--pine);
-  color: #fff;
+  background: var(--brass);
+  border-color: var(--brass);
+  color: var(--on-brass);
 }
 
 .reset {

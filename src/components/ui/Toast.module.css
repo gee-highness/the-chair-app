@@ -19,7 +19,7 @@
   border: 1.5px solid var(--line-strong);
   font-size: var(--text-sm);
   font-weight: 600;
-  box-shadow: 3px 3px 0 rgba(20, 35, 28, 0.15);
+  box-shadow: var(--shadow-md);
   animation: rise 180ms ease-out;
 }
 
