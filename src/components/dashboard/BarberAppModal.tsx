@@ -14,12 +14,12 @@ export function BarberAppModal({
   open,
   onClose,
   barberName,
-  path,
+  barberSlug,
 }: {
   open: boolean;
   onClose: () => void;
   barberName: string;
-  path: string;
+  barberSlug: string;
 }) {
   const toast = useToast();
   const [qr, setQr] = useState('');
@@ -27,10 +27,13 @@ export function BarberAppModal({
 
   useEffect(() => {
     if (!open) return;
-    const full = `${window.location.origin}${path}`;
+    // The dashboard lives at /t/<salon>/dashboard/..., so the salon slug is in the URL.
+    const salon = window.location.pathname.match(/^\/t\/([^/]+)/)?.[1];
+    if (!salon || !barberSlug) return;
+    const full = `${window.location.origin}/t/${salon}/barbers/${barberSlug}`;
     setUrl(full);
     QRCode.toDataURL(full, { margin: 1, width: 440 }).then(setQr).catch(() => setQr(''));
-  }, [open, path]);
+  }, [open, barberSlug]);
 
   const copy = async () => {
     try {
@@ -56,7 +59,7 @@ export function BarberAppModal({
         <div className={styles.actions}>
           <Button onClick={copy}>Copy link</Button>
           {qr && (
-            <a href={qr} download={`${path.split('/').pop()}-qr.png`}>
+            <a href={qr} download={`${barberSlug}-qr.png`}>
               <Button variant="secondary">Download QR</Button>
             </a>
           )}

@@ -13,7 +13,6 @@ import { useToast } from '@/components/ui/Toast';
 import { useConfirm } from '@/components/ui/Confirm';
 import { useRole } from '@/hooks/useRole';
 import { BarberAppModal } from '@/components/dashboard/BarberAppModal';
-import { useParams } from 'next/navigation';
 import { AvailabilityEditor, DailyAvailability } from '@/components/dashboard/AvailabilityEditor';
 import styles from './page.module.css';
 
@@ -46,7 +45,6 @@ export default function BarbersPage() {
   const role = useRole();
   const allowed = role === 'admin';
   const toast = useToast();
-  const { tenantSlug } = useParams<{ tenantSlug: string }>();
   const [appFor, setAppFor] = useState<Barber | null>(null);
   const confirm = useConfirm();
   const [barbers, setBarbers] = useState<Barber[] | null>(null);
@@ -206,7 +204,7 @@ export default function BarbersPage() {
         open={appFor !== null}
         onClose={() => setAppFor(null)}
         barberName={appFor?.name || ''}
-        path={appFor ? `/t/${tenantSlug}/barbers/${appFor.slug}` : ''}
+        barberSlug={appFor?.slug || ''}
       />
     </div>
   );
