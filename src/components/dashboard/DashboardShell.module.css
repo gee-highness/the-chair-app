@@ -163,7 +163,7 @@
     align-items: stretch;
     padding: 0 var(--space-2) env(safe-area-inset-bottom, 0px);
     border-top: 1px solid rgba(237, 239, 231, 0.18);
-    box-shadow: 0 -6px 24px rgba(42, 29, 99, 0.25);
+    box-shadow: 0 -6px 24px rgba(15, 34, 54, 0.3);
   }
   .brand {
     display: none;

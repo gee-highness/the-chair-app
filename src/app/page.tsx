@@ -9,6 +9,7 @@
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
+import { Logo } from '@/components/Logo';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton, SkeletonLines } from '@/components/ui/Skeleton';
@@ -226,7 +227,7 @@ export default function Home() {
       <header className={styles.siteHeader}>
         <div className={styles.siteHeaderInner}>
           <Link href="/" className={styles.siteBrand}>
-            The Chair App
+            <Logo size={32} />
           </Link>
           {customer === undefined || staff === undefined ? null : customer || staffDashboard ? (
             <div className={styles.accountArea}>

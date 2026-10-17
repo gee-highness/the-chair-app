@@ -27,9 +27,11 @@ import {
   AnalyticsIcon,
   SettingsIcon,
   AccountIcon,
+  GuideIcon,
   PublicPageIcon,
   LogoutIcon,
 } from './NavIcons';
+import { LogoMark } from '@/components/Logo';
 import styles from './DashboardShell.module.css';
 
 interface NavItem {
@@ -51,6 +53,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/reviews', label: 'Reviews', icon: ReviewsIcon, roles: ['admin'] },
   { href: '/analytics', label: 'Analytics', icon: AnalyticsIcon, roles: ['admin'] },
   { href: '/settings', label: 'Settings', icon: SettingsIcon, roles: ['admin'] },
+  { href: '/guide', label: 'Guide', icon: GuideIcon, roles: ['admin', 'receptionist', 'barber'] },
   { href: '/account', label: 'Account', icon: AccountIcon, roles: ['admin', 'receptionist', 'barber'] },
 ];
 
@@ -86,9 +89,7 @@ export function DashboardShell({
     <div className={styles.shell}>
       <nav className={styles.sidebar} aria-label="Dashboard navigation">
         <div className={styles.brand}>
-          <span className={styles.brandTicket} aria-hidden="true">
-            #
-          </span>
+          <LogoMark size={36} />
           <div className={styles.brandText}>
             <p className={styles.brandName}>{tenantName}</p>
             <p className={styles.brandRole}>{role}</p>

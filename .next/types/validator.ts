@@ -83,6 +83,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../src/app/admin/(protected)/guide/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/admin/guide">> = Specific
+  const handler = {} as typeof import("../../src/app/admin/(protected)/guide/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../src/app/admin/(protected)/moderation/page.tsx
 {
   type __IsExpected<Specific extends AppPageConfig<"/admin/moderation">> = Specific
@@ -150,6 +159,24 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
 {
   type __IsExpected<Specific extends AppPageConfig<"/contact">> = Specific
   const handler = {} as typeof import("../../src/app/contact/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../src/app/guide/[id]/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/guide/[id]">> = Specific
+  const handler = {} as typeof import("../../src/app/guide/[id]/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../src/app/guide/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/guide">> = Specific
+  const handler = {} as typeof import("../../src/app/guide/page.js")
   type __Check = __IsExpected<typeof handler>
   // @ts-ignore
   type __Unused = __Check
@@ -276,6 +303,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
 {
   type __IsExpected<Specific extends AppPageConfig<"/t/[tenantSlug]/dashboard/customers">> = Specific
   const handler = {} as typeof import("../../src/app/t/[tenantSlug]/dashboard/customers/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../src/app/t/[tenantSlug]/dashboard/guide/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/t/[tenantSlug]/dashboard/guide">> = Specific
+  const handler = {} as typeof import("../../src/app/t/[tenantSlug]/dashboard/guide/page.js")
   type __Check = __IsExpected<typeof handler>
   // @ts-ignore
   type __Unused = __Check

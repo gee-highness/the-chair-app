@@ -50,6 +50,7 @@ export function SiteFooter() {
       </div>
       <div className={styles.inner}>
         <nav className={styles.legal} aria-label="Legal and help">
+          <Link href="/guide">Guides</Link>
           <Link href="/privacy">Privacy</Link>
           <Link href="/terms">Terms</Link>
           <Link href="/contact">Contact</Link>

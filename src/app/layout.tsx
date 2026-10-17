@@ -43,7 +43,7 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: DISPLAY_PREFS_SCRIPT }} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#2a1d63" />
+        <meta name="theme-color" content="#0f2236" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </head>

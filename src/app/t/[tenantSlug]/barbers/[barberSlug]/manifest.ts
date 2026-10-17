@@ -28,7 +28,7 @@ export default async function manifest(
     start_url: base,
     display: 'standalone',
     background_color: '#ffffff',
-    theme_color: tenant.branding?.primaryColor || '#2a1d63',
+    theme_color: tenant.branding?.primaryColor || '#0f2236',
     icons: [
       ...(photo ? [{ src: photo, sizes: 'any', type: 'image/png', purpose: 'any' as const }] : []),
       { src: '/logo-192.png', sizes: '192x192', type: 'image/png' },

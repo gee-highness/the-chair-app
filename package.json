@@ -19,7 +19,9 @@
     "test:e2e:install": "playwright install --with-deps chromium",
     "db:normalize-emails": "tsx scripts/normalize-emails.ts",
     "db:reset-password": "tsx scripts/reset-password.ts",
-    "db:backfill-tenant-currency": "tsx scripts/backfill-tenant-currency.ts"
+    "db:backfill-tenant-currency": "tsx scripts/backfill-tenant-currency.ts",
+    "brand:build": "node scripts/brand/build-icons.mjs",
+    "guides:build": "node scripts/brand/build-guides.mjs"
   },
   "dependencies": {
     "react": "^19.0.0",

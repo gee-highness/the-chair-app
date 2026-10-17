@@ -1,11 +1,11 @@
 /* src/styles/tokens.css
  *
- * Design language: Servo's. Lavender brand on a cool-white (or deep-charcoal)
- * canvas with a faint grid, generous radii, soft violet glow instead of hard
- * shadows, and Space Grotesk throughout. The token NAMES are unchanged from
- * the earlier "trade ticket" palette so every component picks the new look up
- * without edits: --brass is now the brand violet, --pine the deep violet used
- * for headers and sidebars.
+ * Design language: Servo's structure (radii, glow depth, Space Grotesk,
+ * bottom tab bars) in the Chair App's own colours: "midnight and copper".
+ * A warm cream canvas (deep navy in dark mode), midnight-navy headers and
+ * sidebars, and a copper accent: barbershop leather and brass, not Servo's
+ * lavender. The token NAMES are unchanged from the earlier palettes so every
+ * component follows: --brass is the copper accent, --pine the midnight navy.
  *
  * Tenant-facing surfaces inherit the structural tokens (spacing/type/radius)
  * and layer each salon's own brand color on top via --tenant-primary /
@@ -15,28 +15,28 @@
 
 :root {
   /* ---- Platform palette ---- */
-  --ink: #16131f;              /* near-black with a violet cast */
-  --ink-soft: #4a4660;         /* secondary text */
-  --ink-faint: #6b677f;        /* tertiary / placeholder text (4.5:1 on paper) */
-  --paper: #f6f4fb;            /* page canvas */
+  --ink: #14202b;              /* near-black with a violet cast */
+  --ink-soft: #435262;         /* secondary text */
+  --ink-faint: #627080;        /* tertiary / placeholder text (4.5:1 on paper) */
+  --paper: #f7f3ec;            /* page canvas */
   --paper-raised: #ffffff;     /* cards, sheets, inputs */
-  --paper-sunken: #ece8f7;     /* wells, chips, table zebra */
-  --line: #ddd8ec;             /* hairline */
-  --line-strong: #bdb6d6;
+  --paper-sunken: #eee8dc;     /* wells, chips, table zebra */
+  --line: #e0d8c8;             /* hairline */
+  --line-strong: #c2b8a2;
 
-  --pine: #2a1d63;             /* deep surface — headers, sidebar, footer */
-  --pine-raised: #3f2b86;
+  --pine: #0f2236;             /* deep surface — headers, sidebar, footer */
+  --pine-raised: #1b3a57;
 
-  --brass: #7050d8;            /* platform accent — brand violet */
-  --brass-strong: #5a3fb8;
-  --brass-soft: #e9e3ff;
+  --brass: #b4521f;            /* platform accent — brand violet */
+  --brass-strong: #8f3f15;
+  --brass-soft: #f6dfcf;
 
-  --rust: #c0364a;             /* status/alert only — never decorative */
-  --rust-soft: #ffe9ec;
-  --moss: #0e7c6b;             /* success/confirmed */
-  --moss-soft: #d9f5ef;
-  --amber: #9a6a00;            /* pending/waiting */
-  --amber-soft: #fff3dc;
+  --rust: #b3263a;             /* status/alert only — never decorative */
+  --rust-soft: #fde8ea;
+  --moss: #2f7d5b;             /* success/confirmed */
+  --moss-soft: #dcf1e6;
+  --amber: #8a6200;            /* pending/waiting */
+  --amber-soft: #fcefcb;
 
   /* ---- Type ---- */
   --font-display: var(--font-space-grotesk), 'Space Grotesk', 'Sora', system-ui, sans-serif;
@@ -73,11 +73,11 @@
 
   /* ---- Depth: a soft violet glow, not a hard offset ---- */
   --stamp-offset: 0px;
-  --glow: 0 0 0 1px rgba(112, 80, 216, 0.35), 0 4px 24px rgba(138, 108, 240, 0.14);
-  --shadow-md: 0 6px 24px rgba(138, 108, 240, 0.12);
-  --shadow-lg: 0 10px 40px rgba(138, 108, 240, 0.18);
-  --focus-ring: 0 0 0 3px rgba(112, 80, 216, 0.45);
-  --scrim: rgba(22, 19, 31, 0.55);
+  --glow: 0 0 0 1px rgba(180, 82, 31, 0.35), 0 4px 24px rgba(180, 82, 31, 0.14);
+  --shadow-md: 0 6px 24px rgba(15, 34, 54, 0.12);
+  --shadow-lg: 0 10px 40px rgba(15, 34, 54, 0.18);
+  --focus-ring: 0 0 0 3px rgba(180, 82, 31, 0.45);
+  --scrim: rgba(15, 34, 54, 0.55);
   --on-brass: #ffffff;         /* text on a --brass fill */
   --raised: var(--paper-sunken);   /* hover wash (was referenced but undefined) */
   --brass-ink: var(--brass-strong); /* brand-colored text on paper */
@@ -88,60 +88,60 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --ink: #edebf5;
-    --ink-soft: #b9b6c9;
-    --ink-faint: #8a879b;
-    --paper: #151515;
-    --paper-raised: #1d1d1f;
-    --paper-sunken: #101010;
-    --line: #2e2e33;
-    --line-strong: #46464d;
-    --pine: #1b1433;
-    --pine-raised: #2a1f55;
-    --brass: #c4b5fd;
-    --brass-strong: #d9cfff;
-    --brass-soft: #2a2350;
-    --rust: #ff8a9a;
+    --ink: #f3efe8;
+    --ink-soft: #c4bfb5;
+    --ink-faint: #918c82;
+    --paper: #0e1620;
+    --paper-raised: #16212e;
+    --paper-sunken: #0a1119;
+    --line: #243242;
+    --line-strong: #3a4c60;
+    --pine: #08121c;
+    --pine-raised: #12263a;
+    --brass: #f0a068;
+    --brass-strong: #f8bd90;
+    --brass-soft: #3a2416;
+    --rust: #ff8a98;
     --rust-soft: #3a1c22;
-    --moss: #5eead4;
-    --moss-soft: #12302b;
-    --amber: #ffc95c;
-    --amber-soft: #382b10;
-    --glow: 0 0 0 1px rgba(196, 181, 253, 0.4), 0 4px 28px rgba(196, 181, 253, 0.14);
+    --moss: #6fd3a6;
+    --moss-soft: #123024;
+    --amber: #ffcf6b;
+    --amber-soft: #3a2c0f;
+    --glow: 0 0 0 1px rgba(240, 160, 104, 0.4), 0 4px 28px rgba(240, 160, 104, 0.14);
     --shadow-md: 0 6px 24px rgba(0, 0, 0, 0.4);
     --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.5);
-    --focus-ring: 0 0 0 3px rgba(196, 181, 253, 0.5);
+    --focus-ring: 0 0 0 3px rgba(240, 160, 104, 0.5);
     --scrim: rgba(0, 0, 0, 0.65);
-    --on-brass: #16131f;
+    --on-brass: #1c1008;
   }
 }
 
 :root[data-theme='dark'] {
-  --ink: #edebf5;
-  --ink-soft: #b9b6c9;
-  --ink-faint: #8a879b;
-  --paper: #151515;
-  --paper-raised: #1d1d1f;
-  --paper-sunken: #101010;
-  --line: #2e2e33;
-  --line-strong: #46464d;
-  --pine: #1b1433;
-  --pine-raised: #2a1f55;
-  --brass: #c4b5fd;
-  --brass-strong: #d9cfff;
-  --brass-soft: #2a2350;
-  --rust: #ff8a9a;
+  --ink: #f3efe8;
+  --ink-soft: #c4bfb5;
+  --ink-faint: #918c82;
+  --paper: #0e1620;
+  --paper-raised: #16212e;
+  --paper-sunken: #0a1119;
+  --line: #243242;
+  --line-strong: #3a4c60;
+  --pine: #08121c;
+  --pine-raised: #12263a;
+  --brass: #f0a068;
+  --brass-strong: #f8bd90;
+  --brass-soft: #3a2416;
+  --rust: #ff8a98;
   --rust-soft: #3a1c22;
-  --moss: #5eead4;
-  --moss-soft: #12302b;
-  --amber: #ffc95c;
-  --amber-soft: #382b10;
-  --glow: 0 0 0 1px rgba(196, 181, 253, 0.4), 0 4px 28px rgba(196, 181, 253, 0.14);
+  --moss: #6fd3a6;
+  --moss-soft: #123024;
+  --amber: #ffcf6b;
+  --amber-soft: #3a2c0f;
+  --glow: 0 0 0 1px rgba(240, 160, 104, 0.4), 0 4px 28px rgba(240, 160, 104, 0.14);
   --shadow-md: 0 6px 24px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.5);
-  --focus-ring: 0 0 0 3px rgba(196, 181, 253, 0.5);
+  --focus-ring: 0 0 0 3px rgba(240, 160, 104, 0.5);
   --scrim: rgba(0, 0, 0, 0.65);
-  --on-brass: #16131f;
+  --on-brass: #1c1008;
 }
 
 * {
@@ -161,15 +161,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Servo's canvas: a faint grid with two soft violet glows. Fixed, so it
-   stays put while content scrolls; dropped for print and high contrast. */
+/* Canvas: two soft copper glows over the cream (or navy) paper. Fixed, so
+   they stay put while content scrolls; dropped for print and high contrast. */
 body {
   background-image:
-    linear-gradient(var(--line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--line) 1px, transparent 1px),
-    radial-gradient(1200px 500px at 85% -10%, rgba(138, 108, 240, 0.14), transparent 60%),
-    radial-gradient(900px 400px at -10% 0%, rgba(196, 181, 253, 0.08), transparent 60%);
-  background-size: 48px 48px, 48px 48px, auto, auto;
+    radial-gradient(1100px 480px at 88% -12%, rgba(180, 82, 31, 0.1), transparent 60%),
+    radial-gradient(900px 420px at -10% 0%, rgba(27, 58, 87, 0.1), transparent 60%);
   background-attachment: fixed;
 }
 html[data-contrast='high'] body {
