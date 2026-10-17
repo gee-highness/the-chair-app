@@ -137,7 +137,7 @@ export function DashboardShell({
         <div className={styles.sidebarFooter}>
           <Link href={`/t/${tenantSlug}`} className={styles.navLink} title="View public page">
             <PublicPageIcon className={styles.navIcon} />
-            <span className={styles.navLabel}>Public page</span>
+            <span className={styles.navLabel}>Public</span>
           </Link>
           <button className={[styles.navLink, styles.logout].join(' ')} onClick={handleLogout} title="Log out">
             <LogoutIcon className={styles.navIcon} />

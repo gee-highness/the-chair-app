@@ -80,7 +80,7 @@ export function AdminShell({ adminName, children }: { adminName: string; childre
         <div className={styles.sidebarFooter}>
           <Link href="/" className={styles.navLink} title="View public site">
             <PublicPageIcon className={styles.navIcon} />
-            <span className={styles.navLabel}>View public site</span>
+            <span className={styles.navLabel}>Public</span>
           </Link>
           <button className={[styles.navLink, styles.logout].join(' ')} onClick={handleLogout} title="Log out">
             <LogoutIcon className={styles.navIcon} />
