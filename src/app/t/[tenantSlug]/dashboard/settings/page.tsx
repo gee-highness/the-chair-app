@@ -8,6 +8,7 @@ import { LocationPicker } from '@/components/dashboard/LocationPicker';
 import { SkeletonLines } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useToast } from '@/components/ui/Toast';
+import { ShareLinkModal } from '@/components/dashboard/ShareLinkModal';
 import { useRole } from '@/hooks/useRole';
 import { CURRENCIES, DEFAULT_CURRENCY } from '@/lib/currency';
 import styles from './page.module.css';
@@ -33,6 +34,7 @@ const DEFAULT_LOCATION = { address: '', lat: 40.7128, lng: -74.006 }; // NYC fal
 export default function SettingsPage() {
   const role = useRole();
   const allowed = role === 'admin';
+  const [shareOpen, setShareOpen] = useState(false);
   const toast = useToast();
   const [loaded, setLoaded] = useState(false);
   const [settings, setSettings] = useState<SettingsState>({
@@ -161,9 +163,26 @@ export default function SettingsPage() {
         <LocationPicker value={settings.location} onChange={(location) => setSettings({ ...settings, location })} />
       </section>
 
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>Share your salon</h2>
+        <p>Put your booking page on the mirror, your business card or your socials. Customers can install it as an app.</p>
+        <Button variant="secondary" onClick={() => setShareOpen(true)}>
+          Link and QR code
+        </Button>
+      </section>
+
       <Button loading={saving} onClick={save}>
         Save settings
       </Button>
+
+      <ShareLinkModal
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        title={settings.title || 'Your salon'}
+        path={typeof window !== 'undefined' ? (window.location.pathname.match(/^\/t\/[^/]+/)?.[0] ?? '') : ''}
+        help="Anyone who opens this link can browse your services and book. They can install it to their phone like an app."
+        fileName="salon-qr.png"
+      />
     </div>
   );
 }

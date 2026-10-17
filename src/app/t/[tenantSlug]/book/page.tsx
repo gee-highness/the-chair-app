@@ -19,6 +19,7 @@ import { SkeletonLines } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
 import { Stepper } from '@/components/Stepper';
 import { useConfirmationSequence, SuccessStamp } from '@/components/SuccessStamp';
+import { downloadCalendarFile } from '@/lib/calendar';
 import { formatPrice, DEFAULT_CURRENCY } from '@/lib/currency';
 import styles from './page.module.css';
 
@@ -68,28 +69,6 @@ function dayParts(iso: string) {
     day: d.getDate(),
     full: d.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' }),
   };
-}
-
-/** A calendar file the customer can open to add the visit to their phone. */
-function calendarFile(title: string, startIso: string, minutes: number, where: string): string {
-  const stamp = (d: Date) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
-  const start = new Date(startIso);
-  const end = new Date(start.getTime() + minutes * 60000);
-  const lines = [
-    'BEGIN:VCALENDAR',
-    'VERSION:2.0',
-    'PRODID:-//The Chair App//Booking//EN',
-    'BEGIN:VEVENT',
-    `UID:${start.getTime()}@the-chair-app`,
-    `DTSTAMP:${stamp(new Date())}`,
-    `DTSTART:${stamp(start)}`,
-    `DTEND:${stamp(end)}`,
-    `SUMMARY:${title}`,
-    `LOCATION:${where}`,
-    'END:VEVENT',
-    'END:VCALENDAR',
-  ];
-  return lines.join('\r\n');
 }
 
 // Local calendar date (not UTC): near midnight, toISOString() would offer
@@ -251,15 +230,7 @@ export default function BookPage() {
           {selectedSlot && selectedService && (
             <Button
               variant="secondary"
-              onClick={() => {
-                const file = calendarFile(`${selectedService.name} with ${selectedBarber?.name ?? ''}`, selectedSlot, selectedService.duration, tenantSlug);
-                const url = URL.createObjectURL(new Blob([file], { type: 'text/calendar' }));
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'appointment.ics';
-                a.click();
-                URL.revokeObjectURL(url);
-              }}
+              onClick={() => downloadCalendarFile(`${selectedService.name} with ${selectedBarber?.name ?? ''}`, selectedSlot, selectedService.duration, tenantSlug)}
             >
               Add to calendar
             </Button>

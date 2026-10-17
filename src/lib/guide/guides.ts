@@ -91,8 +91,9 @@ export const GUIDES: Guide[] = [
         title: 'Check or change a booking',
         steps: [
           'Open My appointments from the salon menu to see each booking and its status: Pending, Confirmed, Completed or Cancelled.',
-          'To change the time or cancel, contact the salon. Their phone and email are on their page.',
-          'Cancelling early frees the slot for someone else.',
+          'Tap Cancel booking on an upcoming appointment if you cannot come. You will be asked to confirm, and the time goes back to other customers.',
+          'Tap Add to calendar to put the visit in your phone’s calendar.',
+          'To change the time, cancel and book a new one, or contact the salon. Their phone is on their page.',
         ],
       },
       {
@@ -110,7 +111,7 @@ export const GUIDES: Guide[] = [
     ],
     faq: [
       ['Do I need an account to book?', 'No. You can book as a guest with your name, email and phone. An account saves your details and lets you follow barbers and review visits.'],
-      ['Can I cancel online?', 'Not yet. Contact the salon directly and they will cancel it for you.'],
+      ['Can I cancel online?', 'Yes, for upcoming Pending or Confirmed bookings, from My appointments. For anything else, contact the salon.'],
       ['Why is my booking Pending?', 'The salon confirms bookings. You will see the status change to Confirmed on My appointments.'],
       ['I do not see my barber.', 'A barber only appears if the salon has added them and given them working hours. Contact the salon.'],
       ['Is my location stored?', 'No. It is used only to sort results by distance, for that search.'],
@@ -130,7 +131,8 @@ export const GUIDES: Guide[] = [
           'Branding: choose your colours and typeface, and upload a logo and cover image. Your public page and booking use them.',
           'Pricing: choose your currency.',
           'Location: drop a pin so customers can find you on the map and by distance.',
-          'Tap Save changes.',
+          'Tap Save settings.',
+          'Share your salon: tap Link and QR code to copy your booking link or download a QR to print.',
         ],
         tip: 'Add a logo and a location first. Salons with both appear far better in discovery.',
       },
@@ -166,11 +168,13 @@ export const GUIDES: Guide[] = [
       {
         id: 'day',
         title: 'Run the day',
+        intro: 'A red number on the Appointments tab (and in the browser tab title) shows bookings waiting for you to confirm.',
         steps: [
           'Appointments shows bookings by date. Filter by status and change a status from the list.',
-          'Confirm Pending bookings. Mark visits Completed when done; that is when loyalty points are earned.',
+          'Confirm Pending bookings. Customers can cancel their own upcoming bookings online, and you will see them as Cancelled. Mark visits Completed when done; that is when loyalty points are earned.',
           'Add walk-ins on the Waitlist and seat them when a chair frees up.',
-          'Customers keeps your client list. Search, add or edit a client.',
+          'Customers keeps your client list. Search, add or edit a client, or tap Export CSV to open it in a spreadsheet.',
+          'On Appointments, tap Export CSV or Print for the day’s list.',
         ],
       },
       {

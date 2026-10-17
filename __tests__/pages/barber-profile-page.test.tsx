@@ -5,6 +5,8 @@ import { mockFetch } from '../helpers/fetchMock';
 
 vi.mock('next/navigation', () => ({
   useParams: () => ({ tenantSlug: 'demo', barberSlug: 'alex' }),
+  usePathname: () => '/t/demo/barbers/alex',
+  useRouter: () => ({ push: () => {}, back: () => {} }),
 }));
 
 import BarberProfilePage from '@/app/t/[tenantSlug]/barbers/[barberSlug]/page';
@@ -32,7 +34,7 @@ describe('Barber profile page', () => {
     await waitFor(() => expect(screen.getByRole('heading', { name: 'Alex Rivera' })).toBeInTheDocument());
     expect(screen.getByText('Fades · Tapers')).toBeInTheDocument();
     expect(screen.getByText('Fades and tapers.')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Book with Alex' })).toHaveAttribute('href', '/t/demo/book');
+    expect(screen.getByRole('link', { name: 'Book with Alex' })).toHaveAttribute('href', '/t/demo/barbers/alex/book');
   });
 
   it('shows a portfolio grid when the barber has photos', async () => {
@@ -43,6 +45,25 @@ describe('Barber profile page', () => {
     });
     const { container } = render(<BarberProfilePage />);
     await waitFor(() => expect(container.querySelectorAll('img')).toHaveLength(2));
+  });
+
+  it('shows only this barber’s reviews, with an average rating', async () => {
+    mockFetch({
+      '/api/public/tenants/demo': () => ({
+        json: {
+          barbers: [{ _id: 'b1', name: 'Alex', slug: 'alex' }],
+          reviews: [
+            { _id: 'r1', barberId: 'b1', rating: 5, text: 'Sharp fade.' },
+            { _id: 'r2', barberId: 'b1', rating: 3, text: 'Fine.' },
+            { _id: 'r3', barberId: 'other', rating: 1, text: 'Not about Alex.' },
+          ],
+        },
+      }),
+    });
+    render(<BarberProfilePage />);
+    await waitFor(() => expect(screen.getByText('Sharp fade.')).toBeInTheDocument());
+    expect(screen.queryByText('Not about Alex.')).not.toBeInTheDocument();
+    expect(screen.getByText('★ 4.0')).toBeInTheDocument();
   });
 
   it('404 (null tenant data) also shows "Barber not found" rather than crashing', async () => {

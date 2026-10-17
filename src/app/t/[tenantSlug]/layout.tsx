@@ -198,7 +198,7 @@ export default function TenantLayout({ children }: { children: React.ReactNode }
 
         {navOpen && <div className={styles.overlay} onClick={() => setNavOpen(false)} aria-hidden="true" />}
 
-        <main className={styles.main}>{children}</main>
+        <main id="main-content" tabIndex={-1} className={styles.main}>{children}</main>
 
         {/* Not a <footer>: the global SiteFooter (root layout) is the page's
             single contentinfo landmark and carries the discovery link. */}

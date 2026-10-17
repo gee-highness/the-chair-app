@@ -89,7 +89,7 @@ export function AdminShell({ adminName, children }: { adminName: string; childre
         </div>
       </nav>
 
-      <main className={styles.main}>{children}</main>
+      <main id="main-content" tabIndex={-1} className={styles.main}>{children}</main>
     </div>
   );
 }

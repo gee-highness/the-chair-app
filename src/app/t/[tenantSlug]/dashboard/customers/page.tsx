@@ -15,6 +15,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonLines } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
 import { useRole } from '@/hooks/useRole';
+import { downloadCsv, toCsv } from '@/lib/csv';
 import styles from './page.module.css';
 
 interface Customer {
@@ -102,6 +103,24 @@ export default function CustomersPage() {
             onChange={(e) => setQuery(e.target.value)}
             aria-label="Search customers"
           />
+          <Button
+            size="sm"
+            variant="secondary"
+            disabled={!customers || customers.length === 0}
+            onClick={() =>
+              downloadCsv(
+                'customers.csv',
+                toCsv(customers || [], [
+                  { header: 'Name', value: (c) => c.name },
+                  { header: 'Email', value: (c) => c.email },
+                  { header: 'Phone', value: (c) => c.phone },
+                  { header: 'Loyalty points', value: (c) => (tenantId ? c.loyaltyPoints?.[tenantId] ?? 0 : '') },
+                ])
+              )
+            }
+          >
+            Export CSV
+          </Button>
           <Button size="sm" onClick={openNew}>
             Add customer
           </Button>

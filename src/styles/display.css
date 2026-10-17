@@ -23,3 +23,20 @@ html[data-motion='reduced'] *::after {
   transition-duration: 0.001ms !important;
   scroll-behavior: auto !important;
 }
+
+/* Keyboard users: first Tab reveals a link past the navigation. */
+.skip-link {
+  position: absolute;
+  left: var(--space-3);
+  top: -100px;
+  z-index: 1000;
+  padding: var(--space-3) var(--space-4);
+  background: var(--brass);
+  color: var(--on-brass);
+  border-radius: var(--radius-control);
+  font-weight: 700;
+  text-decoration: none;
+}
+.skip-link:focus {
+  top: var(--space-3);
+}

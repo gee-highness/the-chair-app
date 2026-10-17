@@ -8,11 +8,12 @@
 // lock entirely — the rail is always part of the layout, just narrower and
 // unlabeled below the desktop breakpoint (see DashboardShell.module.css).
 'use client';
-import { ReactElement, ReactNode } from 'react';
+import { ReactElement, ReactNode, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { RoleProvider } from '@/hooks/useRole';
 import { CurrencyProvider } from '@/hooks/useCurrency';
+import { usePendingCount } from '@/hooks/usePendingCount';
 import { dynamicCacheNameForPathname } from '@/lib/pwaScope';
 import {
   OverviewIcon,
@@ -32,6 +33,7 @@ import {
   LogoutIcon,
 } from './NavIcons';
 import { LogoMark } from '@/components/Logo';
+import { PageHint } from './PageHint';
 import styles from './DashboardShell.module.css';
 
 interface NavItem {
@@ -75,6 +77,16 @@ export function DashboardShell({
   const base = `/t/${tenantSlug}/dashboard`;
 
   const items = NAV_ITEMS.filter((item) => item.roles.includes(role));
+  const pending = usePendingCount();
+
+  // "(3) Salon" in the browser tab while bookings wait for confirmation.
+  useEffect(() => {
+    const base = document.title.replace(/^\(\d+\)\s*/, '');
+    document.title = pending > 0 ? `(${pending}) ${base}` : base;
+    return () => {
+      document.title = base;
+    };
+  }, [pending]);
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
@@ -108,7 +120,14 @@ export function DashboardShell({
                   aria-current={active ? 'page' : undefined}
                   title={item.label}
                 >
-                  <Icon className={styles.navIcon} />
+                  <span className={styles.iconWrap}>
+                    <Icon className={styles.navIcon} />
+                    {item.href === '/appointments' && pending > 0 && (
+                      <span className={styles.badge} aria-label={`${pending} bookings waiting for confirmation`}>
+                        {pending > 9 ? '9+' : pending}
+                      </span>
+                    )}
+                  </span>
                   <span className={styles.navLabel}>{item.label}</span>
                 </Link>
               </li>
@@ -118,7 +137,7 @@ export function DashboardShell({
         <div className={styles.sidebarFooter}>
           <Link href={`/t/${tenantSlug}`} className={styles.navLink} title="View public page">
             <PublicPageIcon className={styles.navIcon} />
-            <span className={styles.navLabel}>View public page</span>
+            <span className={styles.navLabel}>Public page</span>
           </Link>
           <button className={[styles.navLink, styles.logout].join(' ')} onClick={handleLogout} title="Log out">
             <LogoutIcon className={styles.navIcon} />
@@ -127,9 +146,12 @@ export function DashboardShell({
         </div>
       </nav>
 
-      <main className={styles.main}>
+      <main id="main-content" tabIndex={-1} className={styles.main}>
         <RoleProvider value={role}>
-          <CurrencyProvider value={currency}>{children}</CurrencyProvider>
+          <CurrencyProvider value={currency}>
+            <PageHint section={pathname === base ? '' : (pathname || '').slice(base.length + 1).split('/')[0]} base={base} />
+            {children}
+          </CurrencyProvider>
         </RoleProvider>
       </main>
     </div>

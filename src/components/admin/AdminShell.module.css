@@ -214,3 +214,9 @@
     padding: var(--space-5) var(--space-4);
   }
 }
+
+@media print {
+  .sidebar { display: none !important; }
+  .shell { display: block; padding: 0; }
+  .main { padding: 0; max-width: none; }
+}

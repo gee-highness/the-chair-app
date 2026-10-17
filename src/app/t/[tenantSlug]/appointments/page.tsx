@@ -10,6 +10,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Badge, statusTone } from '@/components/ui/Badge';
@@ -19,6 +20,8 @@ import { SkeletonLines } from '@/components/ui/Skeleton';
 import { Modal } from '@/components/ui/Modal';
 import { Textarea } from '@/components/ui/Field';
 import { useToast } from '@/components/ui/Toast';
+import { useConfirm } from '@/components/ui/Confirm';
+import { downloadCalendarFile } from '@/lib/calendar';
 import { CustomerSignInModal } from '@/components/CustomerSignInModal';
 import { useCustomerAuth } from '@/hooks/useCustomerAuth';
 import styles from './page.module.css';
@@ -31,6 +34,7 @@ interface Appointment {
   barberName?: string;
   serviceName?: string;
   servicePrice?: number;
+  serviceDuration?: number;
 }
 
 function StarPicker({ value, onChange }: { value: number; onChange: (n: number) => void }) {
@@ -56,6 +60,8 @@ function StarPicker({ value, onChange }: { value: number; onChange: (n: number) 
 export default function AppointmentsPage() {
   const { tenantSlug } = useParams<{ tenantSlug: string }>();
   const toast = useToast();
+  const confirm = useConfirm();
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
   const { customer, signInOpen, setSignInOpen, requireSignIn, onSignedIn } = useCustomerAuth();
 
   const [appointments, setAppointments] = useState<Appointment[] | null>(null);
@@ -108,6 +114,34 @@ export default function AppointmentsPage() {
     }
   };
 
+  const cancelBooking = async (apt: Appointment) => {
+    const when = new Date(apt.dateTime).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+    const ok = await confirm({
+      title: 'Cancel this booking?',
+      message: `${apt.serviceName ?? 'Your appointment'} with ${apt.barberName ?? 'your barber'} on ${when}. The time goes back to other customers.`,
+      confirmLabel: 'Cancel booking',
+      cancelLabel: 'Keep it',
+    });
+    if (!ok) return;
+    setCancellingId(apt._id);
+    try {
+      const res = await fetch(`/api/t/${tenantSlug}/my-appointments`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ appointmentId: apt._id, action: 'cancel' }),
+      });
+      if (res.ok) {
+        toast.show('Booking cancelled', 'success');
+        load();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        toast.show(data.message || 'Could not cancel. Please contact the salon.', 'error');
+      }
+    } finally {
+      setCancellingId(null);
+    }
+  };
+
   if (customer === undefined) return <SkeletonLines count={4} />;
 
   if (!customer) {
@@ -141,20 +175,48 @@ export default function AppointmentsPage() {
         {appointments === null ? (
           <SkeletonLines count={2} />
         ) : upcoming.length === 0 ? (
-          <EmptyState title="Nothing upcoming" description="Ready for your next visit?" />
+          <EmptyState
+            title="Nothing upcoming"
+            description="Ready for your next visit?"
+            action={<Link href={`/t/${tenantSlug}/book`}><Button size="sm">Book now</Button></Link>}
+          />
         ) : (
           <div className={styles.list}>
-            {upcoming.map((apt) => (
-              <div key={apt._id} className={styles.row}>
-                <div className={styles.rowBody}>
-                  <p className={styles.service}>{apt.serviceName}</p>
-                  <p className={styles.meta}>
-                    with {apt.barberName} · {new Date(apt.dateTime).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
-                  </p>
+            {upcoming.map((apt) => {
+              const d = new Date(apt.dateTime);
+              return (
+                <div key={apt._id} className={styles.row}>
+                  <div className={styles.dateBlock} aria-hidden="true">
+                    <span className={styles.dateMonth}>{d.toLocaleDateString([], { month: 'short' })}</span>
+                    <span className={styles.dateDay}>{d.getDate()}</span>
+                  </div>
+                  <div className={styles.rowBody}>
+                    <p className={styles.service}>{apt.serviceName}</p>
+                    <p className={styles.meta}>
+                      with {apt.barberName} · {d.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
+                    </p>
+                    <div className={styles.rowActions}>
+                      <button
+                        type="button"
+                        className={styles.textButton}
+                        onClick={() => downloadCalendarFile(`${apt.serviceName ?? 'Appointment'} with ${apt.barberName ?? ''}`, apt.dateTime, apt.serviceDuration || 30, tenantSlug)}
+                      >
+                        Add to calendar
+                      </button>
+                      <button
+                        type="button"
+                        className={`${styles.textButton} ${styles.dangerText}`}
+                        disabled={cancellingId === apt._id}
+                        onClick={() => cancelBooking(apt)}
+                      >
+                        {cancellingId === apt._id ? 'Cancelling…' : 'Cancel booking'}
+                      </button>
+                    </div>
+                  </div>
+                  <Badge tone={statusTone(apt.status)} />
                 </div>
-                <Badge tone={statusTone(apt.status)} />
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </section>

@@ -16,7 +16,7 @@ export function GuideView({ guides, printAll = false }: { guides: Guide[]; print
   if (!guide) return null;
 
   return (
-    <main className={styles.page} data-testid="guide-page">
+    <main id="main-content" tabIndex={-1} className={styles.page} data-testid="guide-page">
       <div className={styles.top}>
         <div>
           <p className={styles.eyebrow}>The Chair App</p>

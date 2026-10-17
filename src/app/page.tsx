@@ -260,7 +260,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main className={styles.main}>
+      <main id="main-content" tabIndex={-1} className={styles.main}>
       <section className={styles.hero}>
         <p className={styles.eyebrow}>Salons &amp; barbershops</p>
         <h1 className={styles.title}>Find your chair.</h1>
@@ -306,10 +306,10 @@ export default function Home() {
       </section>
 
       <div className={styles.viewSwitch} role="tablist" aria-label="Discovery sections">
-        <Button variant={view === 'discover' ? 'primary' : 'secondary'} size="sm" onClick={() => setView('discover')}>
+        <Button role="tab" aria-selected={view === 'discover'} variant={view === 'discover' ? 'primary' : 'secondary'} size="sm" onClick={() => setView('discover')}>
           Discover salons
         </Button>
-        <Button variant={view === 'feed' ? 'primary' : 'secondary'} size="sm" onClick={() => setView('feed')}>
+        <Button role="tab" aria-selected={view === 'feed'} variant={view === 'feed' ? 'primary' : 'secondary'} size="sm" onClick={() => setView('feed')}>
           Stylist feed
         </Button>
       </div>

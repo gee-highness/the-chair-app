@@ -25,7 +25,7 @@ import DiscoveryMap from '@/components/DiscoveryMap';
 import SalonMapView from '@/components/SalonMapView';
 
 describe('DiscoveryMap', () => {
-  it('renders a marker for the user\'s location, plus one per pin, each linking to its salon', () => {
+  it('renders a marker for the user\'s location, plus one per pin, each linking to its salon', async () => {
     render(
       <DiscoveryMap
         center={{ lat: 40.7, lng: -74 }}
@@ -35,23 +35,24 @@ describe('DiscoveryMap', () => {
         ]}
       />
     );
-    const markers = screen.getAllByTestId('marker');
+    // The map mounts one tick after render (see useDeferredMount).
+    const markers = await screen.findAllByTestId('marker');
     expect(markers).toHaveLength(3); // "you are here" + 2 salons
     expect(screen.getByRole('link', { name: 'Fade Factory' })).toHaveAttribute('href', '/t/fade-factory');
     expect(screen.getByRole('link', { name: 'Clip Joint' })).toHaveAttribute('href', '/t/clip-joint');
     expect(screen.getByText('You are here')).toBeInTheDocument();
   });
 
-  it('renders no salon markers (just "you are here") when there are no pins', () => {
+  it('renders no salon markers (just "you are here") when there are no pins', async () => {
     render(<DiscoveryMap center={{ lat: 40.7, lng: -74 }} pins={[]} />);
-    expect(screen.getAllByTestId('marker')).toHaveLength(1);
+    expect(await screen.findAllByTestId('marker')).toHaveLength(1);
   });
 });
 
 describe('SalonMapView', () => {
-  it('renders a single marker centered on the given coordinates, with no popup/link (read-only)', () => {
+  it('renders a single marker centered on the given coordinates, with no popup/link (read-only)', async () => {
     render(<SalonMapView lat={40.7} lng={-74} />);
-    expect(screen.getByTestId('map-container')).toHaveAttribute('data-center', JSON.stringify([40.7, -74]));
+    expect(await screen.findByTestId('map-container')).toHaveAttribute('data-center', JSON.stringify([40.7, -74]));
     expect(screen.getAllByTestId('marker')).toHaveLength(1);
     expect(screen.queryByTestId('popup')).not.toBeInTheDocument();
   });
