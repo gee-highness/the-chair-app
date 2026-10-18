@@ -19,8 +19,8 @@ describe('barber app manifest', () => {
   });
 
   it('is a separate installable app for the barber, scoped to their path', async () => {
-    const manifest = (await import('@/app/t/[tenantSlug]/barbers/[barberSlug]/manifest')).default;
-    const m = await manifest({ params: Promise.resolve({ tenantSlug: 'acme', barberSlug: 'marcus' }) });
+    const { barberManifest } = await import('@/lib/manifests');
+    const m = await barberManifest('acme', 'marcus');
     expect(m.id).toBe('/t/acme/barbers/marcus');
     expect(m.scope).toBe('/t/acme/barbers/marcus/');
     expect(m.start_url).toBe('/t/acme/barbers/marcus');
@@ -31,8 +31,8 @@ describe('barber app manifest', () => {
   });
 
   it('falls back to the platform app for an unknown barber', async () => {
-    const manifest = (await import('@/app/t/[tenantSlug]/barbers/[barberSlug]/manifest')).default;
-    const m = await manifest({ params: Promise.resolve({ tenantSlug: 'acme', barberSlug: 'nobody' }) });
+    const { barberManifest } = await import('@/lib/manifests');
+    const m = await barberManifest('acme', 'nobody');
     expect(m.start_url).toBe('/');
   });
 });

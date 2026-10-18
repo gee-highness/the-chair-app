@@ -15,6 +15,7 @@ export async function generateMetadata(
   const title = `${barber.name} · ${salonName}`;
   const description = (barber.bio as string | undefined) || `Book an appointment with ${barber.name} at ${salonName}.`;
   return {
+    manifest: `/t/${tenantSlug}/barbers/${barberSlug}/manifest.webmanifest`,
     title,
     description,
     appleWebApp: { capable: true, title: String(barber.name).split(' ')[0], statusBarStyle: 'default' },

@@ -223,6 +223,12 @@ a {
 /* Sticky-bottom page frame: the body is a column, the app fills the space
    above the global footer (see components/SiteFooter.tsx), so on a short page
    the footer sits at the bottom of the screen instead of floating mid-page. */
+html,
+body {
+  /* Safety net: no stray wide element may make the page pan sideways on a phone. `clip` (not hidden) keeps position: sticky working. */
+  overflow-x: clip;
+}
+
 body {
   min-height: 100vh;
   min-height: 100dvh;

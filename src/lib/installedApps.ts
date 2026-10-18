@@ -17,7 +17,11 @@ export interface InstalledApp {
   at: number;
 }
 
-export const INSTALLED_APPS_KEY = 'chair_installed_apps';
+// v2: v1 also counted every page opened inside ANY installed app (e.g. a
+// barber browsed from the Discovery app), so it listed apps that were never
+// installed. A new key drops those false entries.
+export const INSTALLED_APPS_KEY = 'chair_installed_apps_v2';
+const LAUNCH_KEY = 'chair_launch_path';
 const MAX = 30;
 
 export const installedKey = (a: Pick<InstalledApp, 'kind' | 'slug' | 'barberSlug'>) =>
@@ -59,4 +63,31 @@ export function recordInstalledApp(app: Omit<InstalledApp, 'at'>): void {
 export function forgetInstalledApp(app: Pick<InstalledApp, 'kind' | 'slug' | 'barberSlug'>): void {
   const key = installedKey(app);
   write(readInstalledApps().filter((a) => installedKey(a) !== key));
+}
+
+/**
+ * The path this window was first opened at. An installed app's window opens at
+ * its own start_url, so this says which app the window IS; pages visited
+ * later inside it do not make those pages installed apps.
+ */
+export function launchPath(): string {
+  try {
+    let p = sessionStorage.getItem(LAUNCH_KEY);
+    if (!p) {
+      p = window.location.pathname;
+      sessionStorage.setItem(LAUNCH_KEY, p);
+    }
+    return p;
+  } catch {
+    return window.location.pathname;
+  }
+}
+
+/** True when this window is the installed app itself (launched at its start_url, or one of its pages). */
+export function windowIsApp(app: Pick<InstalledApp, 'kind' | 'slug' | 'barberSlug'>): boolean {
+  const launched = launchPath();
+  const base = appPath(app);
+  if (launched !== base && !launched.startsWith(`${base}/`)) return false;
+  // A salon's scope contains its barbers' paths, but those are separate apps.
+  return app.kind === 'barber' || !launched.startsWith(`${base}/barbers/`);
 }

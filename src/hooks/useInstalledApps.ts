@@ -5,7 +5,7 @@
 // app when it is installed or when it is opened as an installed app.
 'use client';
 import { useEffect, useState } from 'react';
-import { InstalledApp, forgetInstalledApp, readInstalledApps, recordInstalledApp } from '@/lib/installedApps';
+import { InstalledApp, forgetInstalledApp, readInstalledApps, recordInstalledApp, windowIsApp } from '@/lib/installedApps';
 import { isStandalone } from './useStandalone';
 
 export function useInstalledApps() {
@@ -28,7 +28,10 @@ export function useRecordInstall(app: Omit<InstalledApp, 'at'> | null) {
   const key = app ? `${app.kind}|${app.slug}|${app.barberSlug ?? ''}|${app.name}|${app.imageUrl ?? ''}|${app.color ?? ''}` : '';
   useEffect(() => {
     if (!app) return;
-    if (isStandalone()) recordInstalledApp(app);
+    // Standalone alone is not proof: a barber opened inside the salon's (or
+    // Discovery's) installed window is standalone too. The window must have
+    // been launched into this very app.
+    if (isStandalone() && windowIsApp(app)) recordInstalledApp(app);
     const onInstalled = () => recordInstalledApp(app);
     window.addEventListener('appinstalled', onInstalled);
     return () => window.removeEventListener('appinstalled', onInstalled);

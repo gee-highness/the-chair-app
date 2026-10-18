@@ -25,7 +25,10 @@
 .accountArea {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2) var(--space-3);
+  min-width: 0;
 }
 
 .accountName {
@@ -50,6 +53,7 @@
 .accountButton:hover { background: rgba(255, 255, 255, 0.25); }
 
 .accountButtonPrimary {
+  min-height: 40px;
   background: var(--brass);
   border: none;
   color: var(--on-brass);
