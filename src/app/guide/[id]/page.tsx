@@ -19,7 +19,7 @@ export default async function GuidePage({ params }: { params: Promise<{ id: stri
   if (!guide) notFound();
   return (
     <>
-      <div style={{ maxWidth: 860, margin: '0 auto', padding: 'var(--space-4) var(--space-4) 0' }}>
+      <div data-noprint style={{ maxWidth: 860, margin: '0 auto', padding: 'var(--space-4) var(--space-4) 0' }}>
         <BackLink href="/guide" label="← All guides" />
       </div>
       <GuideView guides={[guide]} />

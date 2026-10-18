@@ -19,13 +19,14 @@ describe('Barber profile page', () => {
   });
 
   it('shows "Barber not found" when the slug does not match any barber', async () => {
-    mockFetch({ '/api/public/tenants/demo': () => ({ json: { barbers: [{ _id: 'b2', name: 'Sam', slug: 'sam' }] } }) });
+    mockFetch({ '/api/posts': () => ({ json: [] }), '/api/public/tenants/demo': () => ({ json: { barbers: [{ _id: 'b2', name: 'Sam', slug: 'sam' }] } }) });
     render(<BarberProfilePage />);
     await waitFor(() => expect(screen.getByText('Barber not found')).toBeInTheDocument());
   });
 
   it('shows the matched barber\'s name, tags, bio, and a Book link using their first name', async () => {
     mockFetch({
+      '/api/posts': () => ({ json: [] }), // the profile's post feed
       '/api/public/tenants/demo': () => ({
         json: { barbers: [{ _id: 'b1', name: 'Alex Rivera', slug: 'alex', bio: 'Fades and tapers.', tags: ['Fades', 'Tapers'] }] },
       }),
@@ -39,6 +40,7 @@ describe('Barber profile page', () => {
 
   it('shows a portfolio grid when the barber has photos', async () => {
     mockFetch({
+      '/api/posts': () => ({ json: [] }), // the profile's post feed
       '/api/public/tenants/demo': () => ({
         json: { barbers: [{ _id: 'b1', name: 'Alex', slug: 'alex', portfolio: ['a.jpg', 'b.jpg'] }] },
       }),
@@ -49,6 +51,7 @@ describe('Barber profile page', () => {
 
   it('shows only this barber’s reviews, with an average rating', async () => {
     mockFetch({
+      '/api/posts': () => ({ json: [] }), // the profile's post feed
       '/api/public/tenants/demo': () => ({
         json: {
           barbers: [{ _id: 'b1', name: 'Alex', slug: 'alex' }],

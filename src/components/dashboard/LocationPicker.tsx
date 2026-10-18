@@ -45,7 +45,8 @@ export function LocationPicker({
   };
 
   const useMyLocation = () => {
-    if (!('geolocation' in navigator)) return;
+    // Some browsers define the property but leave it undefined, so test the value, not the key.
+    if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition((pos) => {
       onChange({ ...value, lat: pos.coords.latitude, lng: pos.coords.longitude });
     });

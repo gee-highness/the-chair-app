@@ -40,3 +40,10 @@ html[data-motion='reduced'] *::after {
 .skip-link:focus {
   top: var(--space-3);
 }
+
+/* Anything marked data-noprint (navigation links on printable pages) stays out of paper and PDF output. */
+@media print {
+  [data-noprint] {
+    display: none !important;
+  }
+}
