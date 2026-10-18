@@ -12,7 +12,7 @@
     "db:create-tenant": "tsx scripts/create-default-tenant.ts",
     "db:migrate": "tsx scripts/migrate-from-sanity.ts",
     "test": "vitest run",
-    "test:unit": "vitest run --exclude e2e/**",
+    "test:unit": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
