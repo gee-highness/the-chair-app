@@ -269,3 +269,24 @@ body {
     min-width: 44px;
   }
 }
+
+/* Stand-alone links (back links, "view all", directions) get a 44px touch
+   target on phones. Links inside a sentence are exempt. */
+@media (pointer: coarse) {
+  .touch-link,
+  a[class*='backLink'],
+  a[class*='viewAll'],
+  a[class*='directionsLink'],
+  a[class*='page_link'],
+  a[class*='siteBrand'] {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  button[class*='textButton'] {
+    min-width: 44px;
+  }
+  input[type='color'] {
+    min-height: 44px;
+  }
+}

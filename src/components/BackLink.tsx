@@ -41,7 +41,7 @@ export function BackLink({
   }
 
   return (
-    <Link href={backPath} className={className}>
+    <Link href={backPath} className={[className, "touch-link"].filter(Boolean).join(" ")}>
       {backLabel}
     </Link>
   );
@@ -74,7 +74,7 @@ export function BackButton({
   }
 
   return (
-    <Link href={backPath} className={className}>
+    <Link href={backPath} className={[className, "touch-link"].filter(Boolean).join(" ")}>
       {label}
     </Link>
   );
