@@ -175,6 +175,7 @@
     overflow-y: hidden;
     scrollbar-width: none;
     flex: 1;
+    min-width: 0; /* shrink and scroll, so the sign-out links at the end stay on screen */
   }
   .navList::-webkit-scrollbar {
     display: none;

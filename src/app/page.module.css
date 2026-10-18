@@ -427,6 +427,7 @@
   padding: 0 var(--space-5) var(--space-2);
   list-style: none;
   overflow-x: auto;
+  contain: paint; /* a wide table/rail scrolls inside itself and must not widen the phone's layout viewport */
   scroll-snap-type: x proximity;
 }
 .barberRail > li { flex: none; scroll-snap-align: start; }

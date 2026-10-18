@@ -25,6 +25,7 @@
 
 .tableWrap {
   overflow-x: auto;
+  contain: paint; /* a wide table/rail scrolls inside itself and must not widen the phone's layout viewport */
 }
 
 .table {

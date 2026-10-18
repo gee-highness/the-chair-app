@@ -25,6 +25,7 @@
 }
 
 .sm { padding: var(--space-2) var(--space-3); font-size: var(--text-sm); min-height: 36px; }
+@media (pointer: coarse) { .sm { min-height: 44px; } }
 .md { padding: var(--space-3) var(--space-4); font-size: var(--text-sm); }
 .lg { padding: var(--space-3) var(--space-5); font-size: var(--text-base); }
 

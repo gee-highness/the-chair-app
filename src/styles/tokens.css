@@ -242,3 +242,30 @@ body {
   flex-direction: column;
   min-width: 0;
 }
+
+/* Phones: 16px form text stops iOS zooming the page on focus, and controls get
+   a thumb-sized (44px) target. Checkboxes, radios, file and colour inputs keep
+   their native size. */
+@media (max-width: 900px) {
+  input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='color']):not([type='range']),
+  select,
+  textarea {
+    font-size: 16px !important; /* beats per-component sizes: below 16px iOS zooms the page on focus */
+  }
+}
+@media (pointer: coarse) {
+  button,
+  select,
+  input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='color']):not([type='range']):not([type='hidden']) {
+    min-height: 44px;
+  }
+}
+
+@media (pointer: coarse) {
+  a[class*='backIcon'],
+  a[class*='brand'],
+  button[class*='navToggle'] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
