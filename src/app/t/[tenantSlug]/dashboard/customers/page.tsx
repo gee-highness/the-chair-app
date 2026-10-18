@@ -151,9 +151,9 @@ export default function CustomersPage() {
               {filtered.map((c) => (
                 <tr key={c._id}>
                   <td className={styles.nameCell}>{c.name}</td>
-                  <td>{c.email}</td>
-                  <td className={styles.mono}>{c.phone}</td>
-                  <td className={styles.mono}>{tenantId ? c.loyaltyPoints?.[tenantId] ?? 0 : '—'}</td>
+                  <td data-label="Email">{c.email}</td>
+                  <td className={styles.mono} data-label="Phone">{c.phone}</td>
+                  <td className={styles.mono} data-label="Loyalty points">{tenantId ? c.loyaltyPoints?.[tenantId] ?? 0 : '—'}</td>
                   <td>
                     <button className={styles.textButton} onClick={() => openEdit(c)}>
                       Edit
