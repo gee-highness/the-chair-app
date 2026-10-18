@@ -223,6 +223,12 @@ a {
 /* Sticky-bottom page frame: the body is a column, the app fills the space
    above the global footer (see components/SiteFooter.tsx), so on a short page
    the footer sits at the bottom of the screen instead of floating mid-page. */
+html,
+body {
+  /* Safety net: no stray wide element may make the page pan sideways on a phone. `clip` (not hidden) keeps position: sticky working. */
+  overflow-x: clip;
+}
+
 body {
   min-height: 100vh;
   min-height: 100dvh;
@@ -235,4 +241,52 @@ body {
   display: flex;
   flex-direction: column;
   min-width: 0;
+}
+
+/* Phones: 16px form text stops iOS zooming the page on focus, and controls get
+   a thumb-sized (44px) target. Checkboxes, radios, file and colour inputs keep
+   their native size. */
+@media (max-width: 900px) {
+  input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='color']):not([type='range']),
+  select,
+  textarea {
+    font-size: 16px !important; /* beats per-component sizes: below 16px iOS zooms the page on focus */
+  }
+}
+@media (pointer: coarse) {
+  button,
+  select,
+  input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='color']):not([type='range']):not([type='hidden']) {
+    min-height: 44px;
+  }
+}
+
+@media (pointer: coarse) {
+  a[class*='backIcon'],
+  a[class*='brand'],
+  button[class*='navToggle'] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Stand-alone links (back links, "view all", directions) get a 44px touch
+   target on phones. Links inside a sentence are exempt. */
+@media (pointer: coarse) {
+  .touch-link,
+  a[class*='backLink'],
+  a[class*='viewAll'],
+  a[class*='directionsLink'],
+  a[class*='page_link'],
+  a[class*='siteBrand'] {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  button[class*='textButton'] {
+    min-width: 44px;
+  }
+  input[type='color'] {
+    min-height: 44px;
+  }
 }

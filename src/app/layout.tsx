@@ -13,6 +13,7 @@ import '../styles/display.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  manifest: '/manifest.webmanifest', // overridden by salon, barber and admin layouts
   title: SITE_NAME,
   description: 'Salon and barbershop booking platform',
   // No og:url or canonical here on purpose: they would be inherited by every

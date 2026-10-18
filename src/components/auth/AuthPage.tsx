@@ -32,8 +32,8 @@ export function AuthPage({ tenantSlug, eyebrow }: { tenantSlug?: string; eyebrow
 
   return (
     <div className={styles.wrap}>
-      <p style={{ padding: 'var(--space-4) var(--space-4) 0' }}>
-        <Link href={backHref}>← Back</Link>
+      <p style={{ padding: 'var(--space-2) var(--space-4) 0' }}>
+        <Link href={backHref} className="touch-link">← Back</Link>
       </p>
       <Ticket className={styles.ticket}>
         {!tenantSlug && <LogoMark size={44} />}

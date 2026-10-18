@@ -90,6 +90,7 @@
   font-size: var(--text-xs);
   font-family: var(--font-mono);
   overflow-x: auto;
+  contain: paint; /* a wide table/rail scrolls inside itself and must not widen the phone's layout viewport */
   white-space: pre-wrap;
   word-break: break-word;
 }

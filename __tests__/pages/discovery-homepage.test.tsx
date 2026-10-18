@@ -1,4 +1,5 @@
 // __tests__/pages/discovery-homepage.test.tsx
+import { INSTALLED_APPS_KEY } from '@/lib/installedApps';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -86,7 +87,7 @@ describe('Discovery homepage', () => {
   });
 
   describe('apps installed on this device', () => {
-    const seed = (apps: any[]) => localStorage.setItem('chair_installed_apps', JSON.stringify(apps));
+    const seed = (apps: any[]) => localStorage.setItem(INSTALLED_APPS_KEY, JSON.stringify(apps));
     const search = () =>
       mockFetch({
         '/api/public/search': () => ({
@@ -139,7 +140,7 @@ describe('Discovery homepage', () => {
       render(<Home />);
       await userEvent.click(await screen.findByRole('button', { name: 'Remove Demo Salon from this list' }));
       expect(screen.queryByRole('heading', { name: 'Your apps' })).not.toBeInTheDocument();
-      expect(JSON.parse(localStorage.getItem('chair_installed_apps')!)).toEqual([]);
+      expect(JSON.parse(localStorage.getItem(INSTALLED_APPS_KEY)!)).toEqual([]);
     });
   });
 });

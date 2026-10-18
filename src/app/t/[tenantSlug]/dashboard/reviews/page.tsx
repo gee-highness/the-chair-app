@@ -109,9 +109,9 @@ export default function ReviewsPage() {
             {filtered.map((r) => (
               <tr key={r._id}>
                 <td className={styles.nameCell}>{r.customerName || '—'}</td>
-                <td>{r.barberName || '—'}</td>
-                <td className={styles.mono}>{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</td>
-                <td className={styles.textCell}>{r.text || <span className={styles.noText}>No written review</span>}</td>
+                <td data-label="Barber">{r.barberName || '—'}</td>
+                <td className={styles.mono} data-label="Rating">{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</td>
+                <td className={styles.textCell} data-label="Review">{r.text || <span className={styles.noText}>No written review</span>}</td>
                 <td>
                   <Badge tone={r.status === 'visible' ? 'confirmed' : 'cancelled'}>{r.status === 'visible' ? 'Visible' : 'Flagged'}</Badge>
                 </td>

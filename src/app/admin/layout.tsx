@@ -8,11 +8,8 @@
 // /admin/login itself — infinite-loops. The session check belongs only in
 // (protected)/layout.tsx, one level down, which /admin/login sits outside of.
 //
-// Bug fix: admin/manifest.ts produces a route at /admin/manifest.webmanifest,
-// but nothing linked to it — Next.js only auto-injects <link rel="manifest">
-// for the ROOT app/manifest.ts. A nested one needs its own `metadata.manifest`,
-// set here, or the section is never actually installable no matter how
-// correct the manifest file itself is.
+// Links its own manifest (src/lib/manifests.ts, served at
+// /admin/manifest.webmanifest) so this section installs as the Admin app.
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {

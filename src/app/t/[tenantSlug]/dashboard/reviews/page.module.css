@@ -25,6 +25,7 @@
 
 .tableWrap {
   overflow-x: auto;
+  contain: paint; /* a wide table/rail scrolls inside itself and must not widen the phone's layout viewport */
 }
 
 .table {
@@ -69,4 +70,14 @@
 .noText {
   color: var(--ink-faint);
   font-style: italic;
+}
+
+/* Phones: each review becomes a card instead of a sideways-scrolling row. */
+@media (max-width: 600px) {
+  .table { min-width: 0; }
+  .table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .table tr { display: block; padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--line); }
+  .table td { display: flex; justify-content: space-between; gap: var(--space-3); padding: var(--space-1) 0; border: 0; text-align: right; overflow-wrap: anywhere; }
+  .table td[data-label]::before { content: attr(data-label); color: var(--ink-soft); font-weight: 600; text-align: left; flex: none; }
+  .table td.nameCell { font-size: var(--text-base); justify-content: flex-start; }
 }
