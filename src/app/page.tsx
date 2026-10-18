@@ -187,7 +187,7 @@ export default function Home() {
   };
 
   const useNearMe = () => {
-    if (!('geolocation' in navigator)) return;
+    if (!navigator.geolocation) return;
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {

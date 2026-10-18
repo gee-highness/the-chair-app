@@ -22,6 +22,7 @@ describe('Services dashboard page', () => {
 
   it('lists existing categories and services', async () => {
     mockFetch({
+      '/api/barbers': () => ({ json: [] }), // the service form's barber picker
       '/api/categories': () => ({ json: [{ _id: 'c1', name: 'Haircuts' }] }),
       '/api/services': () => ({ json: [{ _id: 's1', name: 'Fade', duration: 30, price: 25, categoryId: 'c1' }] }),
     });
@@ -33,6 +34,7 @@ describe('Services dashboard page', () => {
   it('adding a new category posts it and shows it in the list', async () => {
     let categories: any[] = [];
     mockFetch({
+      '/api/barbers': () => ({ json: [] }), // the service form's barber picker
       '/api/categories': (url, init) => {
         if (init?.method === 'POST') {
           categories = [...categories, { _id: 'c2', name: 'Coloring' }];
@@ -55,6 +57,7 @@ describe('Services dashboard page', () => {
   it('adding a new service requires name/price/duration and posts them as numbers', async () => {
     let services: any[] = [];
     const fetchMock = mockFetch({
+      '/api/barbers': () => ({ json: [] }), // the service form's barber picker
       '/api/categories': () => ({ json: [] }),
       '/api/services': (url, init) => {
         if (init?.method === 'POST') {
