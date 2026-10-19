@@ -215,6 +215,19 @@
   }
 }
 
+/* Phone tab bar: a few tabs plus More (the rest live in the sheet). */
+.moreItem { display: none; }
+@media (max-width: 900px) {
+  .hideOnPhone { display: none; }
+  .moreItem { display: block; }
+  .sidebarFooter { display: none; }
+  .navList { overflow: visible; }
+  .navList > li { flex: 1 1 0; min-width: 0; }
+  .navLink { font-size: 0.75rem; }
+  /* Page titles: big enough to lead, small enough not to wrap to three lines. */
+  .main h1 { font-size: var(--text-2xl); line-height: 1.15; overflow-wrap: anywhere; }
+}
+
 @media print {
   .sidebar { display: none !important; }
   .shell { display: block; padding: 0; }

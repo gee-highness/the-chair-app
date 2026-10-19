@@ -11,6 +11,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useStandalone } from '@/hooks/useStandalone';
+import { HomeIcon, AppointmentsIcon, MyBookingsIcon, SearchIcon, SettingsIcon } from '@/components/dashboard/NavIcons';
 import styles from './TenantTabBar.module.css';
 
 interface TenantTabBarProps {
@@ -46,7 +47,7 @@ export function TenantTabBar({
         className={[styles.tab, activeTab === 'home' ? styles.tabActive : ''].join(' ')}
         aria-current={activeTab === 'home' ? 'page' : undefined}
       >
-        <span className={styles.icon} aria-hidden="true">🏠</span>
+        <HomeIcon className={styles.icon} />
         <span className={styles.label}>Home</span>
       </Link>
 
@@ -55,7 +56,7 @@ export function TenantTabBar({
         className={[styles.tab, activeTab === 'book' ? styles.tabActive : ''].join(' ')}
         aria-current={activeTab === 'book' ? 'page' : undefined}
       >
-        <span className={styles.icon} aria-hidden="true">📅</span>
+        <AppointmentsIcon className={styles.icon} />
         <span className={styles.label}>Book</span>
       </Link>
 
@@ -64,16 +65,17 @@ export function TenantTabBar({
           href={`${base}/appointments`}
           className={[styles.tab, activeTab === 'appointments' ? styles.tabActive : ''].join(' ')}
           aria-current={activeTab === 'appointments' ? 'page' : undefined}
+          title="My bookings"
         >
-          <span className={styles.icon} aria-hidden="true">✓</span>
-          <span className={styles.label}>My bookings</span>
+          <MyBookingsIcon className={styles.icon} />
+          <span className={styles.label}>Bookings</span>
         </Link>
       )}
 
       {standalone && (
         // Opens as its own window so this installed app keeps its place.
         <a href="/" target="_blank" rel="noopener" className={styles.tab} title="Discover more salons">
-          <span className={styles.icon} aria-hidden="true">🔎</span>
+          <SearchIcon className={styles.icon} />
           <span className={styles.label}>Discover</span>
           <span className="visually-hidden"> (opens in a new window)</span>
         </a>
@@ -86,7 +88,7 @@ export function TenantTabBar({
           aria-current={activeTab === 'dashboard' ? 'page' : undefined}
           title={isStaff ? 'Staff dashboard' : 'Staff only'}
         >
-          <span className={styles.icon} aria-hidden="true">⚙️</span>
+          <SettingsIcon className={styles.icon} />
           <span className={styles.label}>Manage</span>
         </Link>
       )}

@@ -18,7 +18,9 @@
   border-radius: var(--radius-control);
   padding: var(--space-2) var(--space-3);
   font-size: var(--text-sm);
-  min-width: 260px;
+  flex: 1 1 260px;
+  min-width: 0;
+  max-width: 100%;
   background: var(--paper-raised);
   color: var(--ink);
 }

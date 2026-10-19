@@ -25,7 +25,9 @@
   border-radius: var(--radius-control);
   padding: var(--space-2) var(--space-3);
   font-size: var(--text-sm);
-  min-width: 260px;
+  flex: 1 1 260px;
+  min-width: 0;
+  max-width: 100%;
   background: var(--paper-raised);
   color: var(--ink);
 }
@@ -87,4 +89,8 @@
   .table td[data-label]::before { content: attr(data-label); color: var(--ink-soft); font-weight: 600; text-align: left; flex: none; }
   .table td.nameCell { font-size: var(--text-base); justify-content: flex-start; }
   .table td:last-child { justify-content: flex-start; }
+}
+
+@media (pointer: coarse) {
+  .textButton { min-height: 44px; padding-inline: var(--space-2); }
 }

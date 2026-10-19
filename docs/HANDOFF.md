@@ -25,6 +25,12 @@ Continue checking what is missing in the Chair App that exists in Servo POS (`ge
 - **Other:** Privacy/Terms/Contact pages (need legal review), Display menu (theme, text size, contrast, motion), confirm dialogs (`useConfirm`), skip link, share-card images (`opengraph-image.tsx`), react-leaflet 5, CI (`.github/workflows/ci.yml`).
 - **Removed:** the dead email-code endpoints `customer-auth/request` and `verify`; committed `.next` output.
 
+## Mobile and desktop pass (2026-10-19)
+- Root cause of the "tiny desktop layout on a phone" bug: page wrappers centred with `margin: 0 auto` inside the flex-column `.app-root` shrink-wrapped their content, so one wide rail widened the page and the phone zoomed out. Fixed globally in `tokens.css` (`:where(.app-root > *) { width: 100% }`), guarded by `__tests__/layout-css.test.ts`.
+- Dashboard and admin phone navigation: three tabs plus a **More** sheet (`MobileMoreSheet`) instead of a 13-item sideways-scrolling bar.
+- Salon tab bar uses line icons (no emoji); page headers wrap; filters, location row and charts fit on phones; touch targets and map controls are thumb-sized; discovery is wider on desktop with a responsive salon grid.
+- Audit method: seed an in-memory Mongo (`mongodb-memory-server`), `next build && next start`, then Playwright at 390x844 (isMobile) and 1280x800 over every route, measuring overflow, small targets and tiny text. Use a production build; `next dev` recompiles stall the run. Pass the viewport as `viewport: {width,height}` (top-level width/height is ignored).
+
 ## How to run and verify
 - Install: `npm ci`. Node 22. `MONGODB_URI` must exist to build or run (any value for build/tests; tests use an in-memory fake).
 - Checks (same as CI): `npx tsc --noEmit`, `npm run test:unit` (584 tests), `npm run build`.

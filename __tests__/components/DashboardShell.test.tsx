@@ -103,4 +103,35 @@ describe('DashboardShell', () => {
     );
     expect(screen.getByText('Child sees role: receptionist')).toBeInTheDocument();
   });
+  describe('phone "More" sheet', () => {
+    const renderAdmin = () =>
+      render(
+        <DashboardShell tenantSlug="demo" currency="USD" tenantName="Demo Salon" role="admin">
+          <p>Content</p>
+        </DashboardShell>
+      );
+
+    it('is closed until More is tapped, then lists the pages that are not tabs plus Public and Log out', async () => {
+      const user = userEvent.setup();
+      renderAdmin();
+      expect(screen.queryByRole('dialog', { name: 'More pages' })).not.toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: 'More' }));
+      const sheet = screen.getByRole('dialog', { name: 'More pages' });
+      expect(sheet).toHaveTextContent('Services');
+      expect(sheet).toHaveTextContent('Settings');
+      expect(sheet).toHaveTextContent('Public page');
+      expect(sheet).toHaveTextContent('Log out');
+      // The tabs themselves are not repeated in the sheet.
+      expect(sheet).not.toHaveTextContent('Overview');
+    });
+
+    it('closes on Escape', async () => {
+      const user = userEvent.setup();
+      renderAdmin();
+      await user.click(screen.getByRole('button', { name: 'More' }));
+      await user.keyboard('{Escape}');
+      expect(screen.queryByRole('dialog', { name: 'More pages' })).not.toBeInTheDocument();
+    });
+  });
 });

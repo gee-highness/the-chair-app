@@ -243,6 +243,16 @@ body {
   min-width: 0;
 }
 
+/* A page wrapper centred with `margin: 0 auto` + max-width is a flex item with
+   auto cross-axis margins, which makes it shrink-wrap its content instead of
+   filling the column. One wide rail or table inside then stretched it to its
+   max-width, the phone shrank the whole page to fit, and everything looked tiny
+   (the discovery page at ~900px on a 390px screen). Fill the column; :where()
+   keeps this at zero specificity so a component's own width still wins. */
+:where(.app-root > *) {
+  width: 100%;
+}
+
 /* Phones: 16px form text stops iOS zooming the page on focus, and controls get
    a thumb-sized (44px) target. Checkboxes, radios, file and colour inputs keep
    their native size. */
@@ -288,5 +298,14 @@ body {
   }
   input[type='color'] {
     min-height: 44px;
+  }
+}
+
+/* Touch screens: Leaflet's zoom buttons are 30px; make them thumb-sized. */
+@media (pointer: coarse) {
+  html .leaflet-touch .leaflet-bar a {
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
   }
 }

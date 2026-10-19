@@ -124,3 +124,7 @@
   font-family: var(--font-mono);
   word-break: break-all;
 }
+
+@media (pointer: coarse) {
+  .textButton { min-height: 44px; padding-inline: var(--space-2); }
+}

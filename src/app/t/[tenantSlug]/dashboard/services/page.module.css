@@ -182,4 +182,10 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+@media (pointer: coarse) {
+  .textButton { min-height: 44px; padding-inline: var(--space-2); }
 }

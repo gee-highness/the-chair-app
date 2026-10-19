@@ -130,3 +130,7 @@
 }
 .textButton:disabled { opacity: 0.5; cursor: wait; }
 .dangerText { color: var(--rust); }
+
+@media (pointer: coarse) {
+  .textButton { min-height: 44px; padding-inline: var(--space-2); }
+}

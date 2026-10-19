@@ -6,26 +6,29 @@
 // machinery to maintain). One role here (super_admin), so unlike
 // DashboardShell there's no per-role item filtering.
 'use client';
-import { ReactElement, ReactNode } from 'react';
+import { ReactElement, ReactNode, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { dynamicCacheNameForPathname } from '@/lib/pwaScope';
-import { OverviewIcon, AnalyticsIcon, LogoutIcon, PublicPageIcon, GuideIcon } from '@/components/dashboard/NavIcons';
+import { OverviewIcon, AnalyticsIcon, LogoutIcon, PublicPageIcon, GuideIcon, MoreIcon } from '@/components/dashboard/NavIcons';
 import { TenantsIcon, StaffDirectoryIcon, ModerationIcon, AdminsIcon, AuditLogIcon, SecurityIcon } from './AdminIcons';
 import { LogoMark } from '@/components/Logo';
+import { MobileMoreSheet } from '@/components/MobileMoreSheet';
 import styles from './AdminShell.module.css';
 
 interface NavItem {
   href: string;
   label: string;
   icon: (props: { className?: string }) => ReactElement;
+  // Shown as a tab in the phone's bottom bar; everything else lives under More.
+  phoneTab?: boolean;
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { href: '', label: 'Overview', icon: OverviewIcon },
-  { href: '/tenants', label: 'Tenants', icon: TenantsIcon },
+  { href: '', label: 'Overview', icon: OverviewIcon, phoneTab: true },
+  { href: '/tenants', label: 'Tenants', icon: TenantsIcon, phoneTab: true },
   { href: '/staff', label: 'Staff', icon: StaffDirectoryIcon },
-  { href: '/moderation', label: 'Moderation', icon: ModerationIcon },
+  { href: '/moderation', label: 'Moderation', icon: ModerationIcon, phoneTab: true },
   { href: '/analytics', label: 'Analytics', icon: AnalyticsIcon },
   { href: '/admins', label: 'Admins', icon: AdminsIcon },
   { href: '/audit-log', label: 'Audit log', icon: AuditLogIcon },
@@ -37,6 +40,8 @@ export function AdminShell({ adminName, children }: { adminName: string; childre
   const pathname = usePathname();
   const router = useRouter();
   const base = '/admin';
+  const [moreOpen, setMoreOpen] = useState(false);
+  useEffect(() => setMoreOpen(false), [pathname]);
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
@@ -63,7 +68,7 @@ export function AdminShell({ adminName, children }: { adminName: string; childre
             const active = pathname === href || (item.href === '' && pathname === base);
             const Icon = item.icon;
             return (
-              <li key={item.href}>
+              <li key={item.href} className={item.phoneTab ? undefined : styles.hideOnPhone}>
                 <Link
                   href={href}
                   className={[styles.navLink, active ? styles.navLinkActive : ''].join(' ')}
@@ -76,6 +81,17 @@ export function AdminShell({ adminName, children }: { adminName: string; childre
               </li>
             );
           })}
+          <li className={styles.moreItem}>
+            <button
+              type="button"
+              className={[styles.navLink, moreOpen ? styles.navLinkActive : ''].join(' ')}
+              aria-expanded={moreOpen}
+              onClick={() => setMoreOpen((o) => !o)}
+            >
+              <MoreIcon className={styles.navIcon} />
+              <span className={styles.navLabel}>More</span>
+            </button>
+          </li>
         </ul>
         <div className={styles.sidebarFooter}>
           <Link href="/" className={styles.navLink} title="View public site">
@@ -88,6 +104,27 @@ export function AdminShell({ adminName, children }: { adminName: string; childre
           </button>
         </div>
       </nav>
+
+      <MobileMoreSheet open={moreOpen} onClose={() => setMoreOpen(false)} label="More pages">
+        {NAV_ITEMS.filter((item) => !item.phoneTab).map((item) => {
+          const href = `${base}${item.href}`;
+          const Icon = item.icon;
+          return (
+            <Link key={item.href} href={href} aria-current={pathname === href ? 'page' : undefined}>
+              <Icon />
+              {item.label}
+            </Link>
+          );
+        })}
+        <Link href="/">
+          <PublicPageIcon />
+          Public site
+        </Link>
+        <button type="button" onClick={handleLogout}>
+          <LogoutIcon />
+          Log out
+        </button>
+      </MobileMoreSheet>
 
       <main id="main-content" tabIndex={-1} className={styles.main}>{children}</main>
     </div>

@@ -173,3 +173,40 @@ export const BookingIssuesIcon = (p: IconProps) =>
     </>,
     p
   );
+
+export const MoreIcon = (p: IconProps) =>
+  base(
+    <>
+      <circle cx="4.5" cy="10" r="1.3" />
+      <circle cx="10" cy="10" r="1.3" />
+      <circle cx="15.5" cy="10" r="1.3" />
+    </>,
+    p
+  );
+
+export const HomeIcon = (p: IconProps) =>
+  base(
+    <>
+      <path d="M2.5 9.5L10 3l7.5 6.5" />
+      <path d="M4.5 8.5V16a1 1 0 001 1h9a1 1 0 001-1V8.5M8 17v-4.5h4V17" />
+    </>,
+    p
+  );
+
+export const SearchIcon = (p: IconProps) =>
+  base(
+    <>
+      <circle cx="9" cy="9" r="5.5" />
+      <path d="M13.2 13.2L17 17" />
+    </>,
+    p
+  );
+
+export const MyBookingsIcon = (p: IconProps) =>
+  base(
+    <>
+      <rect x="3.5" y="2.5" width="13" height="15" rx="1.8" />
+      <path d="M7 7.5l1.4 1.4L11 6.3M7 13h6" />
+    </>,
+    p
+  );

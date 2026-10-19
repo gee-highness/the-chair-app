@@ -3,6 +3,8 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: var(--space-5);
+  flex-wrap: wrap;
+  gap: var(--space-3);
 }
 
 .heading {
@@ -86,4 +88,8 @@
 .textButtonDanger:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+@media (pointer: coarse) {
+  .textButton { min-height: 44px; padding-inline: var(--space-2); }
 }

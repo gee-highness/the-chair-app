@@ -117,3 +117,7 @@
   background: var(--paper);
   color: var(--ink);
 }
+
+@media (pointer: coarse) {
+  .textButton { min-height: 44px; padding-inline: var(--space-2); }
+}
