@@ -7,6 +7,7 @@ import { Modal } from '@/components/ui/Modal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonLines } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
+import { useConfirm } from '@/components/ui/Confirm';
 import styles from './page.module.css';
 
 interface WaitlistEntry {
@@ -32,6 +33,7 @@ const emptyForm = { customerName: '', customerEmail: '', customerPhone: '', barb
 
 export default function WaitlistPage() {
   const toast = useToast();
+  const confirm = useConfirm();
   const [entries, setEntries] = useState<WaitlistEntry[] | null>(null);
   const [barbers, setBarbers] = useState<Barber[]>([]);
   const [services, setServices] = useState<Service[]>([]);
@@ -97,17 +99,23 @@ export default function WaitlistPage() {
     }
   };
 
-  const seatNow = async (id: string) => {
+  const seatNow = async (id: string, force = false) => {
     const res = await fetch('/api/appointments', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ _id: id, status: 'confirmed' }),
+      body: JSON.stringify({ _id: id, status: 'confirmed', ...(force ? { force: true } : {}) }),
     });
     if (res.ok) {
       toast.show('Seated', 'success');
       load();
     } else {
-      toast.show('Could not update', 'error');
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 409 && data.code === 'clash') {
+        const go = await confirm({ title: 'Barber is busy', message: `${data.message} Seat this walk-in anyway?`, confirmLabel: 'Seat anyway', danger: false });
+        if (go) return seatNow(id, true);
+        return;
+      }
+      toast.show(data.message || 'Could not update', 'error');
     }
   };
 

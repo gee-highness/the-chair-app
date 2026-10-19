@@ -128,3 +128,14 @@
   .row { flex-direction: column; }
   .statusCol { flex-direction: row; align-items: center; }
 }
+
+.clash {
+  display: inline-block;
+  margin: var(--space-2) 0 0;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-control);
+  background: var(--rust);
+  color: #fff;
+  font-size: var(--text-sm);
+  font-weight: 600;
+}

@@ -5,6 +5,8 @@ import { Badge, statusTone } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonLines } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
+import { useConfirm } from '@/components/ui/Confirm';
+import { findClashes } from '@/lib/clashes';
 import { useOptionalRole } from '@/hooks/useRole';
 import { useCurrency } from '@/hooks/useCurrency';
 import { formatPrice } from '@/lib/currency';
@@ -17,8 +19,10 @@ interface Appointment {
   status: string;
   source?: string;
   notes?: string;
+  barberId?: string;
   barberName?: string;
   serviceName?: string;
+  serviceDuration?: number;
   servicePrice?: number;
   customerName?: string;
   customerPhone?: string;
@@ -37,6 +41,7 @@ function isoDate(d: Date) {
 
 export default function AppointmentsBoard() {
   const toast = useToast();
+  const confirm = useConfirm();
   const role = useOptionalRole();
   const currency = useCurrency();
   const [appointments, setAppointments] = useState<Appointment[] | null>(null);
@@ -45,6 +50,9 @@ export default function AppointmentsBoard() {
 
   const load = () => fetch('/api/appointments').then((r) => (r.ok ? r.json() : [])).then(setAppointments);
   useEffect(() => { load(); }, []);
+
+  // Live bookings that overlap another of the same barber's, across all days.
+  const clashes = useMemo(() => findClashes(appointments || []), [appointments]);
 
   const filtered = useMemo(() => {
     if (!appointments) return [];
@@ -71,17 +79,23 @@ export default function AppointmentsBoard() {
     downloadCsv(`appointments-${dateFilter || 'all'}.csv`, csv);
   };
 
-  const updateStatus = async (id: string, status: string) => {
+  const updateStatus = async (id: string, status: string, force = false) => {
     const res = await fetch('/api/appointments', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ _id: id, status }),
+      body: JSON.stringify({ _id: id, status, ...(force ? { force: true } : {}) }),
     });
     if (res.ok) {
       toast.show('Status updated', 'success');
       load();
     } else {
       const data = await res.json();
+      if (res.status === 409 && data.code === 'clash') {
+        const go = await confirm({ title: 'Booking clash', message: `${data.message} Put this booking back anyway?`, confirmLabel: 'Book anyway', danger: false });
+        if (go) return updateStatus(id, status, true);
+        load();
+        return;
+      }
       toast.show(data.message || 'Failed to update', 'error');
     }
   };
@@ -139,6 +153,16 @@ export default function AppointmentsBoard() {
                 <p className={styles.meta}>
                   {a.customerName || 'Customer'}{a.customerPhone && <> · <a href={`tel:${a.customerPhone.replace(/\s+/g, '')}`}>{a.customerPhone}</a></>} · with {a.barberName || 'barber'} · <span className={styles.mono}>{a.servicePrice != null ? formatPrice(a.servicePrice, currency) : '—'}</span>
                 </p>
+                {clashes.get(a._id) && (
+                  <p className={styles.clash} role="alert">
+                    ⚠ Clashes with{' '}
+                    {clashes
+                      .get(a._id)!
+                      .map((c) => `${c.customerName || 'another booking'} at ${new Date(c.dateTime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`)
+                      .join(', ')}
+                    . Move or cancel one.
+                  </p>
+                )}
                 {a.notes && <p className={styles.notes}>{a.notes}</p>}
               </div>
               <div className={styles.statusCol}>

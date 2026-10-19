@@ -109,3 +109,19 @@ export async function recordBookingIssue(
     console.error('recordBookingIssue failed:', err);
   }
 }
+
+/** Who is in the way, in words staff can act on. */
+export async function describeClash(db: Db, clash: Appointment, tenantId: ObjectId) {
+  const [customer, service, barber] = await Promise.all([
+    db.collection('customers').findOne({ _id: clash.customerId }, { projection: { name: 1 } }),
+    db.collection('services').findOne({ _id: clash.serviceId, tenantId }, { projection: { name: 1 } }),
+    db.collection('barbers').findOne({ _id: clash.barberId, tenantId }, { projection: { name: 1 } }),
+  ]);
+  const customerName = customer?.name || 'another customer';
+  const barberName = barber?.name || 'This barber';
+  const when = new Date(clash.dateTime).toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit' });
+  return {
+    message: `${barberName} already has ${customerName}${service?.name ? ` (${service.name})` : ''} at ${when}.`,
+    clash: { _id: clash._id, customerName, serviceName: service?.name, dateTime: clash.dateTime, status: clash.status },
+  };
+}

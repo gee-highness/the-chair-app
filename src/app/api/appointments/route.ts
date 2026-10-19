@@ -10,6 +10,7 @@ import { requireRole } from '@/lib/requireRole';
 import { Appointment, AppointmentLog } from '@/lib/types';
 import { pointsForPrice } from '@/lib/loyalty';
 import { sendBookingEmail } from '@/lib/notifications';
+import { findOverlappingAppointment, describeClash } from '@/lib/bookingIssues';
 import { ObjectId } from 'mongodb';
 
 export const dynamic = 'force-dynamic';
@@ -102,9 +103,25 @@ export async function POST(req: NextRequest) {
     if (!service) return NextResponse.json({ message: 'Service not found for this tenant' }, { status: 400 });
     if (!customer) return NextResponse.json({ message: 'Customer not found for this tenant' }, { status: 400 });
 
+    // Clash warning: a timed booking that overlaps another of this barber's is
+    // refused with the details unless staff confirm with `force`. The waitlist
+    // has no fixed time, so it never clashes.
+    let bookedOverClash = false;
+    if (initialStatus !== 'waitlist') {
+      const clash = await findOverlappingAppointment(db, {
+        tenantId: session.tenantId, barberId: new ObjectId(barberId), start: new Date(dateTime), durationMin: service.duration || 30,
+      });
+      if (clash) {
+        if (body.force !== true) {
+          return NextResponse.json({ code: 'clash', ...(await describeClash(db, clash, session.tenantId)) }, { status: 409 });
+        }
+        bookedOverClash = true;
+      }
+    }
+
     const log: AppointmentLog = {
       timestamp: new Date(),
-      action: 'created',
+      action: bookedOverClash ? 'created (staff confirmed it overlaps another booking)' : 'created',
       changedBy: `${session.role}:${session.subjectId.toString()}`,
     };
 
@@ -176,6 +193,27 @@ export async function PUT(req: NextRequest) {
 
     const before = await db.collection<Appointment>('appointments').findOne(filter);
     if (!before) return NextResponse.json({ message: 'Appointment not found' }, { status: 404 });
+
+    // Clash warning: bringing a booking back into the diary (reopening a
+    // cancelled one, or seating a waitlisted walk-in now) must not silently
+    // overlap another of this barber's bookings. Staff can confirm with `force`.
+    const reopening = (status === 'pending' || status === 'confirmed') && before.status !== 'pending' && before.status !== 'confirmed';
+    if (reopening) {
+      const service = await db.collection('services').findOne({ _id: before.serviceId, tenantId: session.tenantId }, { projection: { duration: 1 } });
+      const clash = await findOverlappingAppointment(db, {
+        tenantId: session.tenantId,
+        barberId: before.barberId,
+        start: before.status === 'waitlist' ? new Date() : new Date(before.dateTime),
+        durationMin: service?.duration || 30,
+        excludeId: before._id,
+      });
+      if (clash) {
+        if (body.force !== true) {
+          return NextResponse.json({ code: 'clash', ...(await describeClash(db, clash, session.tenantId)) }, { status: 409 });
+        }
+        mongoUpdate.$push.log.action = `status changed to ${status} (staff confirmed it overlaps another booking)`;
+      }
+    }
 
     const result = await db.collection<Appointment>('appointments').findOneAndUpdate(filter, mongoUpdate, { returnDocument: 'after' });
     if (!result) return NextResponse.json({ message: 'Appointment not found' }, { status: 404 });
