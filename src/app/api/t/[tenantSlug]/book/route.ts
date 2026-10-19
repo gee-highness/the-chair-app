@@ -10,6 +10,7 @@ import { computeAvailableSlots, toBookedRange } from '@/lib/availability';
 import { isValidEmail, normalizeEmail } from '@/lib/identity';
 import { sendBookingEmail } from '@/lib/notifications';
 import { notifyNewBooking } from '@/lib/push';
+import { findOverlappingAppointment, recordBookingIssue } from '@/lib/bookingIssues';
 import { ObjectId, WithId } from 'mongodb';
 
 export const dynamic = 'force-dynamic';
@@ -149,8 +150,17 @@ export async function POST(
 
     const availableSlots = computeAvailableSlots(dayStart, barber.dailyAvailability || [], service.duration, booked);
     const isAvailable = availableSlots.some((s) => Math.abs(s.getTime() - requested.getTime()) < 60_000);
+    const reportBlocked = () =>
+      recordBookingIssue(db, {
+        tenantId: tenant._id!, tenantSlug: tenant.slug, barberId: new ObjectId(barberId), serviceId: new ObjectId(serviceId),
+        customerName, customerEmail, customerPhone, requestedDateTime: requested, durationMin: service.duration, notes,
+      });
+    const blockedResponse = () =>
+      NextResponse.json({ message: 'That time is no longer available — please pick another slot' }, { status: 409 });
+
     if (!isAvailable) {
-      return NextResponse.json({ message: 'That time is no longer available — please pick another slot' }, { status: 409 });
+      await reportBlocked();
+      return blockedResponse();
     }
 
     // Find-or-create the customer by email, attach a loyalty entry for this tenant.
@@ -183,6 +193,18 @@ export async function POST(
     };
 
     const result = await db.collection<Appointment>('appointments').insertOne(appointment);
+
+    // Two customers can pass the check above at the same moment. Re-check
+    // after inserting: the earlier booking (smaller _id) keeps the slot and
+    // the later one is withdrawn and reported to staff.
+    const clash = await findOverlappingAppointment(db, {
+      tenantId: tenant._id!, barberId: new ObjectId(barberId), start: requested, durationMin: service.duration, excludeId: result.insertedId,
+    });
+    if (clash?._id && clash._id.toString() < result.insertedId.toString()) {
+      await db.collection('appointments').deleteOne({ _id: result.insertedId });
+      await reportBlocked();
+      return blockedResponse();
+    }
 
     // Best-effort "we've received your booking" email (a no-op without an email provider).
     await sendBookingEmail({

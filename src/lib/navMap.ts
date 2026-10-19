@@ -213,6 +213,13 @@ export const ROUTES: Record<string, RouteNode> = {
     parent: '/t/{tenantSlug}/dashboard',
     protected: 'staff',
   },
+  '/t/{tenantSlug}/dashboard/booking-issues': {
+    path: '/t/{tenantSlug}/dashboard/booking-issues',
+    world: 'console',
+    label: 'Booking issues',
+    parent: '/t/{tenantSlug}/dashboard',
+    protected: 'staff',
+  },
   '/t/{tenantSlug}/dashboard/waitlist': {
     path: '/t/{tenantSlug}/dashboard/waitlist',
     world: 'console',

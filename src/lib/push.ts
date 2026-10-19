@@ -105,3 +105,31 @@ export async function notifyNewBooking(
     return 0;
   }
 }
+
+/**
+ * A customer's booking could not go ahead (clashed with another booking or
+ * fell outside working hours): alert owners and receptionists and the barber
+ * it was for, so someone can contact the customer. Best-effort.
+ */
+export async function notifyBookingIssue(
+  db: Db,
+  p: { tenantId: ObjectId; tenantSlug: string; barberId: ObjectId; customerName: string; dateTime: Date }
+): Promise<number> {
+  if (!isPushConfigured()) return 0;
+  try {
+    const subs = await db
+      .collection<PushSubscriptionDoc>('pushSubscriptions')
+      .find({ tenantId: p.tenantId, $or: [{ role: { $in: ['admin', 'receptionist'] } }, { barberId: p.barberId }] })
+      .toArray();
+    const when = p.dateTime.toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit' });
+    return await sendPush(db, subs, {
+      title: 'Booking needs attention',
+      body: `${p.customerName} couldn't be booked for ${when}. Contact them to sort it out.`,
+      url: `/t/${p.tenantSlug}/dashboard/booking-issues`,
+      tag: 'booking-issue',
+    });
+  } catch (err) {
+    console.error('push notify failed:', err);
+    return 0;
+  }
+}

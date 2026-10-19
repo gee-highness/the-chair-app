@@ -118,6 +118,31 @@ export interface Appointment {
   log: AppointmentLog[];
 }
 
+/**
+ * A booking a customer tried to make that could not go ahead (the slot was
+ * taken or fell outside the barber's hours). The customer sees "pick another
+ * time"; staff see this record so they can contact them and sort it out.
+ */
+export interface BookingIssue {
+  _id?: ObjectId;
+  tenantId: ObjectId;
+  barberId: ObjectId;
+  serviceId: ObjectId;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  requestedDateTime: Date;
+  reason: 'overlap' | 'unavailable';
+  // The booking that was in the way, when there is one.
+  conflictAppointmentId?: ObjectId;
+  notes?: string;
+  status: 'open' | 'resolved';
+  createdAt: Date;
+  resolvedAt?: Date;
+  resolvedBy?: string;
+  resolutionNote?: string;
+}
+
 export interface AppointmentLog {
   timestamp: Date;
   action: string;

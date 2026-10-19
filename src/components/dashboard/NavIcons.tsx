@@ -164,3 +164,12 @@ export const LogoutIcon = (p: IconProps) =>
     </>,
     p
   );
+
+export const BookingIssuesIcon = (p: IconProps) =>
+  base(
+    <>
+      <path d="M10 2.5l8 14H2l8-14z" />
+      <path d="M10 8v4M10 14.4v.1" />
+    </>,
+    p
+  );

@@ -14,12 +14,14 @@ import { usePathname, useRouter } from 'next/navigation';
 import { RoleProvider } from '@/hooks/useRole';
 import { CurrencyProvider } from '@/hooks/useCurrency';
 import { usePendingCount } from '@/hooks/usePendingCount';
+import { useBookingIssueCount } from '@/hooks/useBookingIssueCount';
 import { dynamicCacheNameForPathname } from '@/lib/pwaScope';
 import {
   OverviewIcon,
   AppointmentsIcon,
   PostsIcon,
   WaitlistIcon,
+  BookingIssuesIcon,
   ServicesIcon,
   BarbersIcon,
   StaffIcon,
@@ -46,6 +48,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { href: '', label: 'Overview', icon: OverviewIcon, roles: ['admin', 'receptionist', 'barber'] },
   { href: '/appointments', label: 'Appointments', icon: AppointmentsIcon, roles: ['admin', 'receptionist', 'barber'] },
+  { href: '/booking-issues', label: 'Booking issues', icon: BookingIssuesIcon, roles: ['admin', 'receptionist', 'barber'] },
   { href: '/posts', label: 'Posts', icon: PostsIcon, roles: ['admin', 'barber'] },
   { href: '/waitlist', label: 'Waitlist', icon: WaitlistIcon, roles: ['admin', 'receptionist'] },
   { href: '/services', label: 'Services', icon: ServicesIcon, roles: ['admin'] },
@@ -78,6 +81,7 @@ export function DashboardShell({
 
   const items = NAV_ITEMS.filter((item) => item.roles.includes(role));
   const pending = usePendingCount();
+  const issues = useBookingIssueCount();
 
   // "(3) Salon" in the browser tab while bookings wait for confirmation.
   useEffect(() => {
@@ -125,6 +129,11 @@ export function DashboardShell({
                     {item.href === '/appointments' && pending > 0 && (
                       <span className={styles.badge} aria-label={`${pending} bookings waiting for confirmation`}>
                         {pending > 9 ? '9+' : pending}
+                      </span>
+                    )}
+                    {item.href === '/booking-issues' && issues > 0 && (
+                      <span className={styles.badge} aria-label={`${issues} blocked bookings need attention`}>
+                        {issues > 9 ? '9+' : issues}
                       </span>
                     )}
                   </span>
